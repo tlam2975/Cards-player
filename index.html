@@ -7,14 +7,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;1,400;1,600&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --felt:      #122018;
-      --felt-hi:   #1a2e22;
-      --cream:     #f6f0e4;
-      --ink:       #18120a;
-      --navy:      #1b2060;
-      --gold:      #c9a84c;
-      --gold-dim:  rgba(201,168,76,0.32);
-      --radius:    14px;
+      --felt:     #122018;
+      --felt-hi:  #1a2e22;
+      --cream:    #f6f0e4;
+      --ink:      #18120a;
+      --navy:     #1b2060;
+      --gold:     #c9a84c;
+      --gold-dim: rgba(201,168,76,0.32);
+      --radius:   14px;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -74,7 +74,18 @@
       position: relative;
       width: 210px;
       height: 295px;
+      transition: opacity .45s ease, transform .45s ease;
     }
+    .stack-wrap.hidden { opacity: 0; transform: translateY(22px); }
+
+    @keyframes pile-nudge {
+      0%   { transform: rotate(0deg)    translateX(0); }
+      20%  { transform: rotate(-1.4deg) translateX(-3px); }
+      55%  { transform: rotate(1.0deg)  translateX(2px); }
+      80%  { transform: rotate(-.5deg)  translateX(-1px); }
+      100% { transform: rotate(0deg)    translateX(0); }
+    }
+    .stack-wrap.nudge { animation: pile-nudge .75s ease; }
 
     .card {
       position: absolute;
@@ -100,15 +111,10 @@
       border-radius: var(--radius);
       background: var(--navy);
       border: 2.5px solid var(--gold);
-      box-shadow:
-        0 6px 28px rgba(0,0,0,.6),
-        0 2px 4px  rgba(0,0,0,.4),
-        inset 0 0 0 1px rgba(201,168,76,.18);
+      box-shadow: 0 6px 28px rgba(0,0,0,.6), 0 2px 4px rgba(0,0,0,.4), inset 0 0 0 1px rgba(201,168,76,.18);
       position: relative;
       overflow: hidden;
     }
-
-    /* inner border + crosshatch */
     .card-face::before {
       content: '';
       position: absolute;
@@ -119,8 +125,6 @@
         repeating-linear-gradient( 45deg, transparent, transparent 7px, rgba(201,168,76,.07) 7px, rgba(201,168,76,.07) 8px),
         repeating-linear-gradient(-45deg, transparent, transparent 7px, rgba(201,168,76,.07) 7px, rgba(201,168,76,.07) 8px);
     }
-
-    /* centre ornament */
     .card-face::after {
       content: '◆';
       position: absolute;
@@ -131,9 +135,70 @@
       color: rgba(201,168,76,.28);
     }
 
+    /* ── controls ── */
+    .controls {
+      margin-top: 28px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .ctrl-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .toggle-label {
+      font-size: 11px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.35);
+    }
+
+    .toggle {
+      width: 40px;
+      height: 22px;
+      border-radius: 11px;
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.15);
+      padding: 0 3px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      transition: background .25s, border-color .25s;
+      position: relative;
+    }
+    .toggle.on {
+      background: rgba(201,168,76,.3);
+      border-color: rgba(201,168,76,.6);
+    }
+
+    .thumb {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.5);
+      position: absolute;
+      left: 3px;
+      transition: transform .25s cubic-bezier(.4,0,.2,1), background .25s;
+    }
+    .toggle.on .thumb { transform: translateX(18px); background: var(--gold); }
+
+    .counter {
+      font-size: 11px;
+      letter-spacing: .1em;
+      color: rgba(201,168,76,.65);
+      height: 16px;
+      opacity: 0;
+      transition: opacity .3s;
+    }
+    .counter.visible { opacity: 1; }
+
     /* ── play button ── */
     .play-btn {
-      margin-top: 54px;
+      margin-top: 24px;
       padding: 15px 62px;
       border: none;
       border-radius: 100px;
@@ -150,7 +215,6 @@
       box-shadow: 0 4px 24px rgba(180,132,44,.42), 0 1px 4px rgba(0,0,0,.4);
       transition: background-position .4s, transform .15s, box-shadow .15s, opacity .3s;
     }
-
     .play-btn:hover:not(:disabled) {
       background-position: 100%;
       transform: translateY(-2px);
@@ -159,7 +223,7 @@
     .play-btn:active:not(:disabled) { transform: translateY(0); }
     .play-btn:disabled { opacity: .4; cursor: default; }
 
-    /* ── blur overlay ── */
+    /* ── reveal overlay ── */
     .overlay {
       position: fixed;
       inset: 0;
@@ -171,35 +235,87 @@
       gap: 30px;
       pointer-events: none;
       opacity: 0;
-      transition: opacity .45s ease;
+      transition: opacity .4s ease;
       background: rgba(8,15,11,.55);
       backdrop-filter: blur(16px) saturate(.75);
       -webkit-backdrop-filter: blur(16px) saturate(.75);
     }
     .overlay.show { opacity: 1; pointer-events: all; }
 
-    /* ── revealed card ── */
-    .reveal-card {
+    /* ── card spring container (handles entry/exit scale) ── */
+    .card-spring {
       width: 285px;
       height: 405px;
+      perspective: 900px;   /* 3-D context for flip child */
+      transform: scale(.72) translateY(32px);
+      opacity: 0;
+      transition: transform .55s cubic-bezier(.34,1.56,.64,1), opacity .4s ease;
+    }
+    .overlay.show .card-spring { transform: scale(1) translateY(0); opacity: 1; }
+
+    /* slide-down exit when Done is clicked */
+    .card-spring.exiting {
+      transform: scale(.82) translateY(55px) !important;
+      opacity: 0 !important;
+      transition: transform .32s ease-in !important, opacity .28s ease-in !important;
+    }
+
+    /* ── flip mechanism ── */
+    .flip-inner {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform .65s cubic-bezier(.4,0,.2,1);
+    }
+    .flip-inner.flipped { transform: rotateY(180deg); }
+
+    .flip-face {
+      position: absolute;
+      inset: 0;
       border-radius: 20px;
-      background: var(--cream);
       border: 3px solid var(--gold);
-      box-shadow:
-        0 40px 100px rgba(0,0,0,.8),
-        inset 0 0 0 1px rgba(255,255,255,.06),
-        0 0 80px rgba(201,168,76,.1);
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+
+    /* back face — navy with pattern (same style as the stack) */
+    .flip-back {
+      background: var(--navy);
+      box-shadow: 0 40px 100px rgba(0,0,0,.8), inset 0 0 0 1px rgba(201,168,76,.18);
+      overflow: hidden;
+    }
+    .flip-back::before {
+      content: '';
+      position: absolute;
+      inset: 12px;
+      border: 1px solid var(--gold-dim);
+      border-radius: 10px;
+      background:
+        repeating-linear-gradient( 45deg, transparent, transparent 9px, rgba(201,168,76,.07) 9px, rgba(201,168,76,.07) 10px),
+        repeating-linear-gradient(-45deg, transparent, transparent 9px, rgba(201,168,76,.07) 9px, rgba(201,168,76,.07) 10px);
+    }
+    .flip-back::after {
+      content: '◆';
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      font-size: 56px;
+      color: rgba(201,168,76,.28);
+    }
+
+    /* front face — cream with text */
+    .flip-front {
+      background: var(--cream);
+      transform: rotateY(180deg);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       padding: 40px 32px;
-      position: relative;
-      transform: scale(.72) translateY(32px);
-      opacity: 0;
-      transition: transform .55s cubic-bezier(.34,1.56,.64,1), opacity .4s ease;
+      box-shadow: 0 40px 100px rgba(0,0,0,.8), inset 0 0 0 1px rgba(255,255,255,.06), 0 0 80px rgba(201,168,76,.1);
     }
-    .overlay.show .reveal-card { transform: scale(1) translateY(0); opacity: 1; }
 
     .corner {
       position: absolute;
@@ -243,10 +359,57 @@
       cursor: pointer;
       opacity: 0;
       transform: translateY(18px);
-      transition: opacity .45s .28s ease, transform .45s .28s ease, background .2s, border-color .2s;
+      transition: opacity .45s .3s ease, transform .45s .3s ease, background .2s, border-color .2s;
     }
     .overlay.show .done-btn { opacity: 1; transform: translateY(0); }
     .done-btn:hover { background: rgba(246,240,228,.08); border-color: rgba(246,240,228,.5); }
+
+    /* ── deck-exhausted screen ── */
+    .deck-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(8,15,11,.72);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity .4s ease;
+    }
+    .deck-screen.show { opacity: 1; pointer-events: all; }
+
+    .deck-inner { text-align: center; }
+    .deck-inner h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 30px;
+      font-weight: 600;
+      color: var(--gold);
+      margin-bottom: 8px;
+    }
+    .deck-inner p {
+      font-size: 12px;
+      letter-spacing: .12em;
+      color: rgba(246,240,228,.45);
+      margin-bottom: 32px;
+    }
+    .reshuffle-btn {
+      padding: 13px 44px;
+      border: 1.5px solid var(--gold-dim);
+      border-radius: 100px;
+      background: transparent;
+      color: var(--gold);
+      font-family: 'Outfit', sans-serif;
+      font-size: 12px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background .2s, border-color .2s;
+    }
+    .reshuffle-btn:hover { background: rgba(201,168,76,.1); border-color: var(--gold); }
 
     /* ── shuffle keyframes ── */
     @keyframes fly1 {
@@ -306,40 +469,94 @@
   <div class="stage">
     <p class="eyebrow">Draw a card</p>
     <div class="stack-wrap" id="stackWrap"></div>
+
+    <div class="controls">
+      <div class="ctrl-row">
+        <span class="toggle-label">No repeats</span>
+        <div class="toggle" id="noRepeatToggle" role="switch" aria-checked="false">
+          <span class="thumb"></span>
+        </div>
+      </div>
+      <span class="counter" id="counter"></span>
+    </div>
+
     <button class="play-btn" id="playBtn">Play</button>
   </div>
 
+  <!-- Reveal overlay -->
   <div class="overlay" id="overlay">
-    <div class="reveal-card">
-      <span class="corner tl">◆</span>
-      <span class="corner br">◆</span>
-      <div class="divider"></div>
-      <p class="card-text" id="cardText"></p>
-      <div class="divider"></div>
+    <div class="card-spring" id="cardSpring">
+      <div class="flip-inner" id="flipInner">
+        <!-- back: navy pattern shown first -->
+        <div class="flip-face flip-back"></div>
+        <!-- front: cream with prompt, revealed after flip -->
+        <div class="flip-face flip-front">
+          <span class="corner tl">◆</span>
+          <span class="corner br">◆</span>
+          <div class="divider"></div>
+          <p class="card-text" id="cardText"></p>
+          <div class="divider"></div>
+        </div>
+      </div>
     </div>
     <button class="done-btn" id="doneBtn">Done</button>
   </div>
 
+  <!-- Deck exhausted screen -->
+  <div class="deck-screen" id="deckScreen">
+    <div class="deck-inner">
+      <h2>Deck Complete</h2>
+      <p>Every card has been drawn</p>
+      <button class="reshuffle-btn" id="reshuffleBtn">Reshuffle &amp; Continue</button>
+    </div>
+  </div>
+
 <script>
   const STACK = 6;
-  let prompts = [];
-  let busy = false;
+  let prompts   = [];
+  let remaining = [];
+  let noRepeat  = false;
+  let busy      = false;
 
-  // Build the visual stack of cards
-  function buildStack() {
-    const wrap = document.getElementById('stackWrap');
-    wrap.innerHTML = '';
+  // DOM
+  const stackWrap   = document.getElementById('stackWrap');
+  const overlay     = document.getElementById('overlay');
+  const cardSpring  = document.getElementById('cardSpring');
+  const flipInner   = document.getElementById('flipInner');
+  const cardText    = document.getElementById('cardText');
+  const playBtn     = document.getElementById('playBtn');
+  const doneBtn     = document.getElementById('doneBtn');
+  const toggleEl    = document.getElementById('noRepeatToggle');
+  const counterEl   = document.getElementById('counter');
+  const deckScreen  = document.getElementById('deckScreen');
+  const reshuffleBtn= document.getElementById('reshuffleBtn');
+
+  // ── Build visual stack ────────────────────────────────────────────
+  function buildStack(animate = false) {
+    if (animate) stackWrap.classList.add('hidden');
+    stackWrap.innerHTML = '';
     for (let i = 0; i < STACK; i++) {
       const el = document.createElement('div');
       el.className = 'card';
       el.innerHTML = '<div class="card-face"></div>';
-      wrap.appendChild(el);
+      stackWrap.appendChild(el);
+    }
+    if (animate) {
+      // Two rAFs ensure the 'hidden' class is painted before removal triggers transition
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        stackWrap.classList.remove('hidden');
+      }));
+    } else {
+      // Initial load nudge
+      setTimeout(() => {
+        stackWrap.classList.add('nudge');
+        stackWrap.addEventListener('animationend', () => stackWrap.classList.remove('nudge'), { once: true });
+      }, 900);
     }
   }
 
-  // Load prompts from cards.json
-  // Note: this requires a local server (e.g. `npx serve .` or VS Code Live Server).
-  // Opening index.html directly via file:// will fail the fetch due to browser CORS rules.
+  // ── Fetch cards.json ──────────────────────────────────────────────
+  // Requires a local server (e.g. `npx serve .`). Won't work on file://
   async function loadPrompts() {
     try {
       const res = await fetch('cards.json');
@@ -348,31 +565,62 @@
     } catch {
       prompts = [
         'Could not load cards.json.',
-        'Make sure both files are in the same folder',
-        'and served via a local server, not file://.'
+        'Serve both files via a local server — not file://'
       ];
+    }
+    remaining = [...prompts];
+    updateCounter();
+  }
+
+  // ── Counter display ───────────────────────────────────────────────
+  function updateCounter() {
+    if (noRepeat) {
+      counterEl.textContent = `${remaining.length} of ${prompts.length} remaining`;
+      counterEl.classList.add('visible');
+    } else {
+      counterEl.classList.remove('visible');
     }
   }
 
-  // Animate shuffle — fires twice for drama
+  // ── Pick a prompt ─────────────────────────────────────────────────
+  function pickCard() {
+    if (noRepeat) {
+      const idx = Math.floor(Math.random() * remaining.length);
+      const card = remaining.splice(idx, 1)[0];
+      updateCounter();
+      return card;
+    }
+    return prompts[Math.floor(Math.random() * prompts.length)];
+  }
+
+  // ── No-repeat toggle ──────────────────────────────────────────────
+  toggleEl.addEventListener('click', () => {
+    noRepeat = !noRepeat;
+    toggleEl.classList.toggle('on', noRepeat);
+    toggleEl.setAttribute('aria-checked', noRepeat);
+    if (noRepeat) remaining = [...prompts];
+    updateCounter();
+  });
+
+  // ── Shuffle animation (two waves) ─────────────────────────────────
   function doShuffle() {
     return new Promise(resolve => {
-      function runWave() {
+      function wave() {
         document.querySelectorAll('#stackWrap .card').forEach((c, i) => {
           const cls = `s${i + 1}`;
           c.classList.remove(cls);
-          void c.offsetWidth;
+          void c.offsetWidth; // force reflow to restart animation
           c.classList.add(cls);
           c.addEventListener('animationend', () => c.classList.remove(cls), { once: true });
         });
       }
-      runWave();
-      setTimeout(runWave, 920);
+      wave();
+      setTimeout(wave, 920);
       setTimeout(resolve, 1860);
     });
   }
 
-  // Vanish the stack before reveal
+  // ── Vanish stack before reveal ────────────────────────────────────
   function vanishStack() {
     return new Promise(resolve => {
       [...document.querySelectorAll('#stackWrap .card')].forEach((c, i) => {
@@ -382,34 +630,61 @@
     });
   }
 
-  // Show the blurred overlay with the picked card
+  // ── Show the reveal overlay with flip ────────────────────────────
   function showResult(text) {
-    document.getElementById('cardText').textContent = text;
-    document.getElementById('overlay').classList.add('show');
+    cardText.textContent = text;
+    flipInner.classList.remove('flipped');     // reset to back face
+    overlay.classList.add('show');
+    setTimeout(() => flipInner.classList.add('flipped'), 480); // flip after spring-in
   }
 
-  // Reset everything back to start
+  // ── Done — slide card down, fade overlay, rebuild stack ──────────
   function reset() {
-    document.getElementById('overlay').classList.remove('show');
+    cardSpring.classList.add('exiting');
     setTimeout(() => {
-      buildStack();
-      document.getElementById('playBtn').disabled = false;
-      busy = false;
-    }, 500);
+      overlay.classList.remove('show');
+      setTimeout(() => {
+        cardSpring.classList.remove('exiting');
+        flipInner.classList.remove('flipped');
+        buildStack(true);
+        playBtn.disabled = false;
+        busy = false;
+      }, 450);
+    }, 300);
   }
 
-  document.getElementById('playBtn').addEventListener('click', async () => {
+  // ── Deck exhausted ────────────────────────────────────────────────
+  function showDeckScreen() {
+    deckScreen.classList.add('show');
+  }
+
+  reshuffleBtn.addEventListener('click', () => {
+    remaining = [...prompts];
+    updateCounter();
+    deckScreen.classList.remove('show');
+  });
+
+  // ── Main play flow ────────────────────────────────────────────────
+  playBtn.addEventListener('click', async () => {
     if (busy) return;
+
+    // Deck exhausted — show message before doing anything
+    if (noRepeat && remaining.length === 0) {
+      showDeckScreen();
+      return;
+    }
+
     busy = true;
-    document.getElementById('playBtn').disabled = true;
+    playBtn.disabled = true;
 
     await doShuffle();
     await vanishStack();
-    showResult(prompts[Math.floor(Math.random() * prompts.length)]);
+    showResult(pickCard());
   });
 
-  document.getElementById('doneBtn').addEventListener('click', reset);
+  doneBtn.addEventListener('click', reset);
 
+  // ── Init ──────────────────────────────────────────────────────────
   buildStack();
   loadPrompts();
 </script>
