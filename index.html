@@ -1,23 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Card Draw</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;1,400;1,600&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;1,400;1,600&family=Outfit:wght@300;400;500&display=swap"
+    rel="stylesheet" />
   <style>
     :root {
-      --felt:     #122018;
-      --felt-hi:  #1a2e22;
-      --cream:    #f6f0e4;
-      --ink:      #18120a;
-      --navy:     #1b2060;
-      --gold:     #c9a84c;
-      --gold-dim: rgba(201,168,76,0.32);
-      --radius:   14px;
+      --felt: #122018;
+      --felt-hi: #1a2e22;
+      --cream: #f6f0e4;
+      --ink: #18120a;
+      --navy: #1b2060;
+      --gold: #c9a84c;
+      --gold-dim: rgba(201, 168, 76, 0.32);
+      --radius: 14px;
     }
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
     body {
       min-height: 100vh;
@@ -37,19 +46,21 @@
       background: radial-gradient(ellipse 90% 70% at 50% 55%, var(--felt-hi) 0%, var(--felt) 50%, #080f0b 100%);
       z-index: 0;
     }
+
     .felt::before {
       content: '';
       position: absolute;
       inset: 0;
-      background: radial-gradient(ellipse 100% 100% at 50% 50%, transparent 38%, rgba(0,0,0,.6) 100%);
+      background: radial-gradient(ellipse 100% 100% at 50% 50%, transparent 38%, rgba(0, 0, 0, .6) 100%);
     }
+
     .felt::after {
       content: '';
       position: absolute;
       inset: 0;
       background-image:
-        repeating-linear-gradient( 45deg, transparent, transparent 3px, rgba(255,255,255,.012) 3px, rgba(255,255,255,.012) 4px),
-        repeating-linear-gradient(-45deg, transparent, transparent 3px, rgba(255,255,255,.012) 3px, rgba(255,255,255,.012) 4px);
+        repeating-linear-gradient(45deg, transparent, transparent 3px, rgba(255, 255, 255, .012) 3px, rgba(255, 255, 255, .012) 4px),
+        repeating-linear-gradient(-45deg, transparent, transparent 3px, rgba(255, 255, 255, .012) 3px, rgba(255, 255, 255, .012) 4px);
     }
 
     /* ── stage ── */
@@ -65,7 +76,7 @@
       font-size: 10px;
       letter-spacing: .28em;
       text-transform: uppercase;
-      color: rgba(255,255,255,.22);
+      color: rgba(255, 255, 255, .22);
       margin-bottom: 40px;
     }
 
@@ -76,16 +87,37 @@
       height: 295px;
       transition: opacity .45s ease, transform .45s ease;
     }
-    .stack-wrap.hidden { opacity: 0; transform: translateY(22px); }
+
+    .stack-wrap.hidden {
+      opacity: 0;
+      transform: translateY(22px);
+    }
 
     @keyframes pile-nudge {
-      0%   { transform: rotate(0deg)    translateX(0); }
-      20%  { transform: rotate(-1.4deg) translateX(-3px); }
-      55%  { transform: rotate(1.0deg)  translateX(2px); }
-      80%  { transform: rotate(-.5deg)  translateX(-1px); }
-      100% { transform: rotate(0deg)    translateX(0); }
+      0% {
+        transform: rotate(0deg) translateX(0);
+      }
+
+      20% {
+        transform: rotate(-1.4deg) translateX(-3px);
+      }
+
+      55% {
+        transform: rotate(1.0deg) translateX(2px);
+      }
+
+      80% {
+        transform: rotate(-.5deg) translateX(-1px);
+      }
+
+      100% {
+        transform: rotate(0deg) translateX(0);
+      }
     }
-    .stack-wrap.nudge { animation: pile-nudge .75s ease; }
+
+    .stack-wrap.nudge {
+      animation: pile-nudge .75s ease;
+    }
 
     .card {
       position: absolute;
@@ -98,12 +130,29 @@
     }
 
     /* pile offsets */
-    .card:nth-child(1) { transform: translate(-50%,-50%) rotate(-4.5deg) translate(-5px, 2px); }
-    .card:nth-child(2) { transform: translate(-50%,-50%) rotate(-2.0deg) translate(-2px,-1px); }
-    .card:nth-child(3) { transform: translate(-50%,-50%) rotate( 0.5deg) translate( 1px, 0px); }
-    .card:nth-child(4) { transform: translate(-50%,-50%) rotate( 2.8deg) translate( 4px, 1px); }
-    .card:nth-child(5) { transform: translate(-50%,-50%) rotate(-1.0deg) translate( 0px,-2px); }
-    .card:nth-child(6) { transform: translate(-50%,-50%) rotate( 1.2deg) translate( 2px, 3px); }
+    .card:nth-child(1) {
+      transform: translate(-50%, -50%) rotate(-4.5deg) translate(-5px, 2px);
+    }
+
+    .card:nth-child(2) {
+      transform: translate(-50%, -50%) rotate(-2.0deg) translate(-2px, -1px);
+    }
+
+    .card:nth-child(3) {
+      transform: translate(-50%, -50%) rotate(0.5deg) translate(1px, 0px);
+    }
+
+    .card:nth-child(4) {
+      transform: translate(-50%, -50%) rotate(2.8deg) translate(4px, 1px);
+    }
+
+    .card:nth-child(5) {
+      transform: translate(-50%, -50%) rotate(-1.0deg) translate(0px, -2px);
+    }
+
+    .card:nth-child(6) {
+      transform: translate(-50%, -50%) rotate(1.2deg) translate(2px, 3px);
+    }
 
     .card-face {
       width: 100%;
@@ -111,10 +160,11 @@
       border-radius: var(--radius);
       background: var(--navy);
       border: 2.5px solid var(--gold);
-      box-shadow: 0 6px 28px rgba(0,0,0,.6), 0 2px 4px rgba(0,0,0,.4), inset 0 0 0 1px rgba(201,168,76,.18);
+      box-shadow: 0 6px 28px rgba(0, 0, 0, .6), 0 2px 4px rgba(0, 0, 0, .4), inset 0 0 0 1px rgba(201, 168, 76, .18);
       position: relative;
       overflow: hidden;
     }
+
     .card-face::before {
       content: '';
       position: absolute;
@@ -122,9 +172,10 @@
       border: 1px solid var(--gold-dim);
       border-radius: 7px;
       background:
-        repeating-linear-gradient( 45deg, transparent, transparent 7px, rgba(201,168,76,.07) 7px, rgba(201,168,76,.07) 8px),
-        repeating-linear-gradient(-45deg, transparent, transparent 7px, rgba(201,168,76,.07) 7px, rgba(201,168,76,.07) 8px);
+        repeating-linear-gradient(45deg, transparent, transparent 7px, rgba(201, 168, 76, .07) 7px, rgba(201, 168, 76, .07) 8px),
+        repeating-linear-gradient(-45deg, transparent, transparent 7px, rgba(201, 168, 76, .07) 7px, rgba(201, 168, 76, .07) 8px);
     }
+
     .card-face::after {
       content: '◆';
       position: absolute;
@@ -132,7 +183,7 @@
       display: grid;
       place-items: center;
       font-size: 44px;
-      color: rgba(201,168,76,.28);
+      color: rgba(201, 168, 76, .28);
     }
 
     /* ── controls ── */
@@ -154,15 +205,15 @@
       font-size: 11px;
       letter-spacing: .14em;
       text-transform: uppercase;
-      color: rgba(255,255,255,.35);
+      color: rgba(255, 255, 255, .35);
     }
 
     .toggle {
       width: 40px;
       height: 22px;
       border-radius: 11px;
-      background: rgba(255,255,255,.12);
-      border: 1px solid rgba(255,255,255,.15);
+      background: rgba(255, 255, 255, .12);
+      border: 1px solid rgba(255, 255, 255, .15);
       padding: 0 3px;
       cursor: pointer;
       display: flex;
@@ -170,31 +221,39 @@
       transition: background .25s, border-color .25s;
       position: relative;
     }
+
     .toggle.on {
-      background: rgba(201,168,76,.3);
-      border-color: rgba(201,168,76,.6);
+      background: rgba(201, 168, 76, .3);
+      border-color: rgba(201, 168, 76, .6);
     }
 
     .thumb {
       width: 16px;
       height: 16px;
       border-radius: 50%;
-      background: rgba(255,255,255,.5);
+      background: rgba(255, 255, 255, .5);
       position: absolute;
       left: 3px;
-      transition: transform .25s cubic-bezier(.4,0,.2,1), background .25s;
+      transition: transform .25s cubic-bezier(.4, 0, .2, 1), background .25s;
     }
-    .toggle.on .thumb { transform: translateX(18px); background: var(--gold); }
+
+    .toggle.on .thumb {
+      transform: translateX(18px);
+      background: var(--gold);
+    }
 
     .counter {
       font-size: 11px;
       letter-spacing: .1em;
-      color: rgba(201,168,76,.65);
+      color: rgba(201, 168, 76, .65);
       height: 16px;
       opacity: 0;
       transition: opacity .3s;
     }
-    .counter.visible { opacity: 1; }
+
+    .counter.visible {
+      opacity: 1;
+    }
 
     /* ── play button ── */
     .play-btn {
@@ -212,16 +271,24 @@
       background-size: 200% 100%;
       background-position: 0%;
       color: #0b1410;
-      box-shadow: 0 4px 24px rgba(180,132,44,.42), 0 1px 4px rgba(0,0,0,.4);
+      box-shadow: 0 4px 24px rgba(180, 132, 44, .42), 0 1px 4px rgba(0, 0, 0, .4);
       transition: background-position .4s, transform .15s, box-shadow .15s, opacity .3s;
     }
+
     .play-btn:hover:not(:disabled) {
       background-position: 100%;
       transform: translateY(-2px);
-      box-shadow: 0 10px 34px rgba(180,132,44,.5), 0 1px 4px rgba(0,0,0,.4);
+      box-shadow: 0 10px 34px rgba(180, 132, 44, .5), 0 1px 4px rgba(0, 0, 0, .4);
     }
-    .play-btn:active:not(:disabled) { transform: translateY(0); }
-    .play-btn:disabled { opacity: .4; cursor: default; }
+
+    .play-btn:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    .play-btn:disabled {
+      opacity: .4;
+      cursor: default;
+    }
 
     /* ── reveal overlay ── */
     .overlay {
@@ -236,22 +303,31 @@
       pointer-events: none;
       opacity: 0;
       transition: opacity .4s ease;
-      background: rgba(8,15,11,.55);
+      background: rgba(8, 15, 11, .55);
       backdrop-filter: blur(16px) saturate(.75);
       -webkit-backdrop-filter: blur(16px) saturate(.75);
     }
-    .overlay.show { opacity: 1; pointer-events: all; }
+
+    .overlay.show {
+      opacity: 1;
+      pointer-events: all;
+    }
 
     /* ── card spring container (handles entry/exit scale) ── */
     .card-spring {
       width: 285px;
       height: 405px;
-      perspective: 900px;   /* 3-D context for flip child */
+      perspective: 900px;
+      /* 3-D context for flip child */
       transform: scale(.72) translateY(32px);
       opacity: 0;
-      transition: transform .55s cubic-bezier(.34,1.56,.64,1), opacity .4s ease;
+      transition: transform .55s cubic-bezier(.34, 1.56, .64, 1), opacity .4s ease;
     }
-    .overlay.show .card-spring { transform: scale(1) translateY(0); opacity: 1; }
+
+    .overlay.show .card-spring {
+      transform: scale(1) translateY(0);
+      opacity: 1;
+    }
 
     /* slide-down exit when Done is clicked */
     .card-spring.exiting {
@@ -266,9 +342,12 @@
       height: 100%;
       position: relative;
       transform-style: preserve-3d;
-      transition: transform .65s cubic-bezier(.4,0,.2,1);
+      transition: transform .65s cubic-bezier(.4, 0, .2, 1);
     }
-    .flip-inner.flipped { transform: rotateY(180deg); }
+
+    .flip-inner.flipped {
+      transform: rotateY(180deg);
+    }
 
     .flip-face {
       position: absolute;
@@ -282,9 +361,10 @@
     /* back face — navy with pattern (same style as the stack) */
     .flip-back {
       background: var(--navy);
-      box-shadow: 0 40px 100px rgba(0,0,0,.8), inset 0 0 0 1px rgba(201,168,76,.18);
+      box-shadow: 0 40px 100px rgba(0, 0, 0, .8), inset 0 0 0 1px rgba(201, 168, 76, .18);
       overflow: hidden;
     }
+
     .flip-back::before {
       content: '';
       position: absolute;
@@ -292,9 +372,10 @@
       border: 1px solid var(--gold-dim);
       border-radius: 10px;
       background:
-        repeating-linear-gradient( 45deg, transparent, transparent 9px, rgba(201,168,76,.07) 9px, rgba(201,168,76,.07) 10px),
-        repeating-linear-gradient(-45deg, transparent, transparent 9px, rgba(201,168,76,.07) 9px, rgba(201,168,76,.07) 10px);
+        repeating-linear-gradient(45deg, transparent, transparent 9px, rgba(201, 168, 76, .07) 9px, rgba(201, 168, 76, .07) 10px),
+        repeating-linear-gradient(-45deg, transparent, transparent 9px, rgba(201, 168, 76, .07) 9px, rgba(201, 168, 76, .07) 10px);
     }
+
     .flip-back::after {
       content: '◆';
       position: absolute;
@@ -302,7 +383,7 @@
       display: grid;
       place-items: center;
       font-size: 56px;
-      color: rgba(201,168,76,.28);
+      color: rgba(201, 168, 76, .28);
     }
 
     /* front face — cream with text */
@@ -314,7 +395,7 @@
       align-items: center;
       justify-content: center;
       padding: 40px 32px;
-      box-shadow: 0 40px 100px rgba(0,0,0,.8), inset 0 0 0 1px rgba(255,255,255,.06), 0 0 80px rgba(201,168,76,.1);
+      box-shadow: 0 40px 100px rgba(0, 0, 0, .8), inset 0 0 0 1px rgba(255, 255, 255, .06), 0 0 80px rgba(201, 168, 76, .1);
     }
 
     .corner {
@@ -324,8 +405,17 @@
       font-family: 'Cormorant Garamond', serif;
       font-weight: 600;
     }
-    .corner.tl { top: 16px; left: 20px; }
-    .corner.br { bottom: 16px; right: 20px; transform: rotate(180deg); }
+
+    .corner.tl {
+      top: 16px;
+      left: 20px;
+    }
+
+    .corner.br {
+      bottom: 16px;
+      right: 20px;
+      transform: rotate(180deg);
+    }
 
     .divider {
       width: 50px;
@@ -347,7 +437,7 @@
     /* ── done button ── */
     .done-btn {
       padding: 14px 54px;
-      border: 1.5px solid rgba(246,240,228,.25);
+      border: 1.5px solid rgba(246, 240, 228, .25);
       border-radius: 100px;
       background: transparent;
       font-family: 'Outfit', sans-serif;
@@ -355,14 +445,22 @@
       font-weight: 400;
       letter-spacing: .2em;
       text-transform: uppercase;
-      color: rgba(246,240,228,.75);
+      color: rgba(246, 240, 228, .75);
       cursor: pointer;
       opacity: 0;
       transform: translateY(18px);
       transition: opacity .45s .3s ease, transform .45s .3s ease, background .2s, border-color .2s;
     }
-    .overlay.show .done-btn { opacity: 1; transform: translateY(0); }
-    .done-btn:hover { background: rgba(246,240,228,.08); border-color: rgba(246,240,228,.5); }
+
+    .overlay.show .done-btn {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .done-btn:hover {
+      background: rgba(246, 240, 228, .08);
+      border-color: rgba(246, 240, 228, .5);
+    }
 
     /* ── deck-exhausted screen ── */
     .deck-screen {
@@ -372,16 +470,23 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: rgba(8,15,11,.72);
+      background: rgba(8, 15, 11, .72);
       backdrop-filter: blur(22px);
       -webkit-backdrop-filter: blur(22px);
       pointer-events: none;
       opacity: 0;
       transition: opacity .4s ease;
     }
-    .deck-screen.show { opacity: 1; pointer-events: all; }
 
-    .deck-inner { text-align: center; }
+    .deck-screen.show {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .deck-inner {
+      text-align: center;
+    }
+
     .deck-inner h2 {
       font-family: 'Cormorant Garamond', serif;
       font-style: italic;
@@ -390,12 +495,14 @@
       color: var(--gold);
       margin-bottom: 8px;
     }
+
     .deck-inner p {
       font-size: 12px;
       letter-spacing: .12em;
-      color: rgba(246,240,228,.45);
+      color: rgba(246, 240, 228, .45);
       margin-bottom: 32px;
     }
+
     .reshuffle-btn {
       padding: 13px 44px;
       border: 1.5px solid var(--gold-dim);
@@ -409,59 +516,170 @@
       cursor: pointer;
       transition: background .2s, border-color .2s;
     }
-    .reshuffle-btn:hover { background: rgba(201,168,76,.1); border-color: var(--gold); }
+
+    .reshuffle-btn:hover {
+      background: rgba(201, 168, 76, .1);
+      border-color: var(--gold);
+    }
 
     /* ── shuffle keyframes ── */
     @keyframes fly1 {
-      0%   { transform: translate(-50%,-50%) rotate(-4.5deg) translate(-5px, 2px); }
-      38%  { transform: translate(calc(-50% - 135px), calc(-50% - 75px)) rotate(-30deg); opacity:.82; }
-      68%  { transform: translate(calc(-50% - 88px),  calc(-50% + 18px)) rotate(-14deg); opacity:.9; }
-      100% { transform: translate(-50%,-50%) rotate(-4.5deg) translate(-5px, 2px); }
+      0% {
+        transform: translate(-50%, -50%) rotate(-4.5deg) translate(-5px, 2px);
+      }
+
+      38% {
+        transform: translate(calc(-50% - 135px), calc(-50% - 75px)) rotate(-30deg);
+        opacity: .82;
+      }
+
+      68% {
+        transform: translate(calc(-50% - 88px), calc(-50% + 18px)) rotate(-14deg);
+        opacity: .9;
+      }
+
+      100% {
+        transform: translate(-50%, -50%) rotate(-4.5deg) translate(-5px, 2px);
+      }
     }
+
     @keyframes fly2 {
-      0%   { transform: translate(-50%,-50%) rotate(-2.0deg) translate(-2px,-1px); }
-      38%  { transform: translate(calc(-50% + 115px), calc(-50% - 92px)) rotate(25deg); opacity:.82; }
-      68%  { transform: translate(calc(-50% + 72px),  calc(-50% + 12px)) rotate(11deg); opacity:.9; }
-      100% { transform: translate(-50%,-50%) rotate(-2.0deg) translate(-2px,-1px); }
+      0% {
+        transform: translate(-50%, -50%) rotate(-2.0deg) translate(-2px, -1px);
+      }
+
+      38% {
+        transform: translate(calc(-50% + 115px), calc(-50% - 92px)) rotate(25deg);
+        opacity: .82;
+      }
+
+      68% {
+        transform: translate(calc(-50% + 72px), calc(-50% + 12px)) rotate(11deg);
+        opacity: .9;
+      }
+
+      100% {
+        transform: translate(-50%, -50%) rotate(-2.0deg) translate(-2px, -1px);
+      }
     }
+
     @keyframes fly3 {
-      0%   { transform: translate(-50%,-50%) rotate(0.5deg) translate(1px, 0px); }
-      38%  { transform: translate(calc(-50% - 55px),  calc(-50% + 115px)) rotate(-22deg); opacity:.82; }
-      68%  { transform: translate(calc(-50% - 32px),  calc(-50% + 42px))  rotate(-9deg);  opacity:.9; }
-      100% { transform: translate(-50%,-50%) rotate(0.5deg) translate(1px, 0px); }
+      0% {
+        transform: translate(-50%, -50%) rotate(0.5deg) translate(1px, 0px);
+      }
+
+      38% {
+        transform: translate(calc(-50% - 55px), calc(-50% + 115px)) rotate(-22deg);
+        opacity: .82;
+      }
+
+      68% {
+        transform: translate(calc(-50% - 32px), calc(-50% + 42px)) rotate(-9deg);
+        opacity: .9;
+      }
+
+      100% {
+        transform: translate(-50%, -50%) rotate(0.5deg) translate(1px, 0px);
+      }
     }
+
     @keyframes fly4 {
-      0%   { transform: translate(-50%,-50%) rotate(2.8deg) translate(4px, 1px); }
-      38%  { transform: translate(calc(-50% + 105px), calc(-50% + 105px)) rotate(27deg); opacity:.82; }
-      68%  { transform: translate(calc(-50% + 62px),  calc(-50% + 38px))  rotate(13deg); opacity:.9; }
-      100% { transform: translate(-50%,-50%) rotate(2.8deg) translate(4px, 1px); }
+      0% {
+        transform: translate(-50%, -50%) rotate(2.8deg) translate(4px, 1px);
+      }
+
+      38% {
+        transform: translate(calc(-50% + 105px), calc(-50% + 105px)) rotate(27deg);
+        opacity: .82;
+      }
+
+      68% {
+        transform: translate(calc(-50% + 62px), calc(-50% + 38px)) rotate(13deg);
+        opacity: .9;
+      }
+
+      100% {
+        transform: translate(-50%, -50%) rotate(2.8deg) translate(4px, 1px);
+      }
     }
+
     @keyframes fly5 {
-      0%   { transform: translate(-50%,-50%) rotate(-1.0deg) translate(0px,-2px); }
-      38%  { transform: translate(calc(-50% + 22px),  calc(-50% - 125px)) rotate(-18deg); opacity:.82; }
-      68%  { transform: translate(calc(-50% + 12px),  calc(-50% - 38px))  rotate(-7deg);  opacity:.9; }
-      100% { transform: translate(-50%,-50%) rotate(-1.0deg) translate(0px,-2px); }
+      0% {
+        transform: translate(-50%, -50%) rotate(-1.0deg) translate(0px, -2px);
+      }
+
+      38% {
+        transform: translate(calc(-50% + 22px), calc(-50% - 125px)) rotate(-18deg);
+        opacity: .82;
+      }
+
+      68% {
+        transform: translate(calc(-50% + 12px), calc(-50% - 38px)) rotate(-7deg);
+        opacity: .9;
+      }
+
+      100% {
+        transform: translate(-50%, -50%) rotate(-1.0deg) translate(0px, -2px);
+      }
     }
+
     @keyframes fly6 {
-      0%   { transform: translate(-50%,-50%) rotate(1.2deg) translate(2px, 3px); }
-      38%  { transform: translate(calc(-50% - 115px), calc(-50% + 85px)) rotate(20deg); opacity:.82; }
-      68%  { transform: translate(calc(-50% - 68px),  calc(-50% + 28px)) rotate(8deg);  opacity:.9; }
-      100% { transform: translate(-50%,-50%) rotate(1.2deg) translate(2px, 3px); }
+      0% {
+        transform: translate(-50%, -50%) rotate(1.2deg) translate(2px, 3px);
+      }
+
+      38% {
+        transform: translate(calc(-50% - 115px), calc(-50% + 85px)) rotate(20deg);
+        opacity: .82;
+      }
+
+      68% {
+        transform: translate(calc(-50% - 68px), calc(-50% + 28px)) rotate(8deg);
+        opacity: .9;
+      }
+
+      100% {
+        transform: translate(-50%, -50%) rotate(1.2deg) translate(2px, 3px);
+      }
     }
 
     @keyframes vanish {
-      to { opacity: 0; transform: translate(-50%,-50%) scale(.82) translateY(-20px); }
+      to {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(.82) translateY(-20px);
+      }
     }
 
-    .card.s1 { animation: fly1 .88s ease-in-out; }
-    .card.s2 { animation: fly2 .88s ease-in-out .05s; }
-    .card.s3 { animation: fly3 .88s ease-in-out .10s; }
-    .card.s4 { animation: fly4 .88s ease-in-out .03s; }
-    .card.s5 { animation: fly5 .88s ease-in-out .07s; }
-    .card.s6 { animation: fly6 .88s ease-in-out .02s; }
-    .card.gone { animation: vanish .4s ease-in forwards; }
+    .card.s1 {
+      animation: fly1 .88s ease-in-out;
+    }
+
+    .card.s2 {
+      animation: fly2 .88s ease-in-out .05s;
+    }
+
+    .card.s3 {
+      animation: fly3 .88s ease-in-out .10s;
+    }
+
+    .card.s4 {
+      animation: fly4 .88s ease-in-out .03s;
+    }
+
+    .card.s5 {
+      animation: fly5 .88s ease-in-out .07s;
+    }
+
+    .card.s6 {
+      animation: fly6 .88s ease-in-out .02s;
+    }
+
+    .card.gone {
+      animation: vanish .4s ease-in forwards;
+    }
   </style>
 </head>
+
 <body>
 
   <div class="felt"></div>
@@ -511,182 +729,184 @@
     </div>
   </div>
 
-<script>
-  const STACK = 6;
-  let prompts   = [];
-  let remaining = [];
-  let noRepeat  = false;
-  let busy      = false;
+  <script>
+    const STACK = 6;
+    let prompts = [];
+    let remaining = [];
+    let noRepeat = false;
+    let busy = false;
 
-  // DOM
-  const stackWrap   = document.getElementById('stackWrap');
-  const overlay     = document.getElementById('overlay');
-  const cardSpring  = document.getElementById('cardSpring');
-  const flipInner   = document.getElementById('flipInner');
-  const cardText    = document.getElementById('cardText');
-  const playBtn     = document.getElementById('playBtn');
-  const doneBtn     = document.getElementById('doneBtn');
-  const toggleEl    = document.getElementById('noRepeatToggle');
-  const counterEl   = document.getElementById('counter');
-  const deckScreen  = document.getElementById('deckScreen');
-  const reshuffleBtn= document.getElementById('reshuffleBtn');
+    // DOM
+    const stackWrap = document.getElementById('stackWrap');
+    const overlay = document.getElementById('overlay');
+    const cardSpring = document.getElementById('cardSpring');
+    const flipInner = document.getElementById('flipInner');
+    const cardText = document.getElementById('cardText');
+    const playBtn = document.getElementById('playBtn');
+    const doneBtn = document.getElementById('doneBtn');
+    const toggleEl = document.getElementById('noRepeatToggle');
+    const counterEl = document.getElementById('counter');
+    const deckScreen = document.getElementById('deckScreen');
+    const reshuffleBtn = document.getElementById('reshuffleBtn');
 
-  // ── Build visual stack ────────────────────────────────────────────
-  function buildStack(animate = false) {
-    if (animate) stackWrap.classList.add('hidden');
-    stackWrap.innerHTML = '';
-    for (let i = 0; i < STACK; i++) {
-      const el = document.createElement('div');
-      el.className = 'card';
-      el.innerHTML = '<div class="card-face"></div>';
-      stackWrap.appendChild(el);
-    }
-    if (animate) {
-      // Two rAFs ensure the 'hidden' class is painted before removal triggers transition
-      requestAnimationFrame(() => requestAnimationFrame(() => {
-        stackWrap.classList.remove('hidden');
-      }));
-    } else {
-      // Initial load nudge
-      setTimeout(() => {
-        stackWrap.classList.add('nudge');
-        stackWrap.addEventListener('animationend', () => stackWrap.classList.remove('nudge'), { once: true });
-      }, 900);
-    }
-  }
-
-  // ── Fetch cards.json ──────────────────────────────────────────────
-  // Requires a local server (e.g. `npx serve .`). Won't work on file://
-  async function loadPrompts() {
-    try {
-      const res = await fetch('cards.json');
-      if (!res.ok) throw new Error();
-      prompts = await res.json();
-    } catch {
-      prompts = [
-        'Could not load cards.json.',
-        'Serve both files via a local server — not file://'
-      ];
-    }
-    remaining = [...prompts];
-    updateCounter();
-  }
-
-  // ── Counter display ───────────────────────────────────────────────
-  function updateCounter() {
-    if (noRepeat) {
-      counterEl.textContent = `${remaining.length} of ${prompts.length} remaining`;
-      counterEl.classList.add('visible');
-    } else {
-      counterEl.classList.remove('visible');
-    }
-  }
-
-  // ── Pick a prompt ─────────────────────────────────────────────────
-  function pickCard() {
-    if (noRepeat) {
-      const idx = Math.floor(Math.random() * remaining.length);
-      const card = remaining.splice(idx, 1)[0];
-      updateCounter();
-      return card;
-    }
-    return prompts[Math.floor(Math.random() * prompts.length)];
-  }
-
-  // ── No-repeat toggle ──────────────────────────────────────────────
-  toggleEl.addEventListener('click', () => {
-    noRepeat = !noRepeat;
-    toggleEl.classList.toggle('on', noRepeat);
-    toggleEl.setAttribute('aria-checked', noRepeat);
-    if (noRepeat) remaining = [...prompts];
-    updateCounter();
-  });
-
-  // ── Shuffle animation (two waves) ─────────────────────────────────
-  function doShuffle() {
-    return new Promise(resolve => {
-      function wave() {
-        document.querySelectorAll('#stackWrap .card').forEach((c, i) => {
-          const cls = `s${i + 1}`;
-          c.classList.remove(cls);
-          void c.offsetWidth; // force reflow to restart animation
-          c.classList.add(cls);
-          c.addEventListener('animationend', () => c.classList.remove(cls), { once: true });
-        });
+    // ── Build visual stack ────────────────────────────────────────────
+    function buildStack(animate = false) {
+      if (animate) stackWrap.classList.add('hidden');
+      stackWrap.innerHTML = '';
+      for (let i = 0; i < STACK; i++) {
+        const el = document.createElement('div');
+        el.className = 'card';
+        el.innerHTML = '<div class="card-face"></div>';
+        stackWrap.appendChild(el);
       }
-      wave();
-      setTimeout(wave, 920);
-      setTimeout(resolve, 1860);
-    });
-  }
-
-  // ── Vanish stack before reveal ────────────────────────────────────
-  function vanishStack() {
-    return new Promise(resolve => {
-      [...document.querySelectorAll('#stackWrap .card')].forEach((c, i) => {
-        setTimeout(() => c.classList.add('gone'), i * 38);
-      });
-      setTimeout(resolve, 440);
-    });
-  }
-
-  // ── Show the reveal overlay with flip ────────────────────────────
-  function showResult(text) {
-    cardText.textContent = text;
-    flipInner.classList.remove('flipped');     // reset to back face
-    overlay.classList.add('show');
-    setTimeout(() => flipInner.classList.add('flipped'), 480); // flip after spring-in
-  }
-
-  // ── Done — slide card down, fade overlay, rebuild stack ──────────
-  function reset() {
-    cardSpring.classList.add('exiting');
-    setTimeout(() => {
-      overlay.classList.remove('show');
-      setTimeout(() => {
-        cardSpring.classList.remove('exiting');
-        flipInner.classList.remove('flipped');
-        buildStack(true);
-        playBtn.disabled = false;
-        busy = false;
-      }, 450);
-    }, 300);
-  }
-
-  // ── Deck exhausted ────────────────────────────────────────────────
-  function showDeckScreen() {
-    deckScreen.classList.add('show');
-  }
-
-  reshuffleBtn.addEventListener('click', () => {
-    remaining = [...prompts];
-    updateCounter();
-    deckScreen.classList.remove('show');
-  });
-
-  // ── Main play flow ────────────────────────────────────────────────
-  playBtn.addEventListener('click', async () => {
-    if (busy) return;
-
-    // Deck exhausted — show message before doing anything
-    if (noRepeat && remaining.length === 0) {
-      showDeckScreen();
-      return;
+      if (animate) {
+        // Two rAFs ensure the 'hidden' class is painted before removal triggers transition
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          stackWrap.classList.remove('hidden');
+        }));
+      } else {
+        // Initial load nudge
+        setTimeout(() => {
+          stackWrap.classList.add('nudge');
+          stackWrap.addEventListener('animationend', () => stackWrap.classList.remove('nudge'), { once: true });
+        }, 900);
+      }
     }
 
-    busy = true;
-    playBtn.disabled = true;
+    // ── Fetch cards.json ──────────────────────────────────────────────
+    // Requires a local server (e.g. `npx serve .`). Won't work on file://
+    async function loadPrompts() {
+      try {
+        // const res = await fetch('cards.json');
+        const res = await fetch(`cards.json?v=${Date.now()}`);
+        if (!res.ok) throw new Error();
+        prompts = await res.json();
+      } catch {
+        prompts = [
+          'Could not load cards.json.',
+          'Serve both files via a local server — not file://'
+        ];
+      }
+      remaining = [...prompts];
+      updateCounter();
+    }
 
-    await doShuffle();
-    await vanishStack();
-    showResult(pickCard());
-  });
+    // ── Counter display ───────────────────────────────────────────────
+    function updateCounter() {
+      if (noRepeat) {
+        counterEl.textContent = `${remaining.length} of ${prompts.length} remaining`;
+        counterEl.classList.add('visible');
+      } else {
+        counterEl.classList.remove('visible');
+      }
+    }
 
-  doneBtn.addEventListener('click', reset);
+    // ── Pick a prompt ─────────────────────────────────────────────────
+    function pickCard() {
+      if (noRepeat) {
+        const idx = Math.floor(Math.random() * remaining.length);
+        const card = remaining.splice(idx, 1)[0];
+        updateCounter();
+        return card;
+      }
+      return prompts[Math.floor(Math.random() * prompts.length)];
+    }
 
-  // ── Init ──────────────────────────────────────────────────────────
-  buildStack();
-  loadPrompts();
-</script>
+    // ── No-repeat toggle ──────────────────────────────────────────────
+    toggleEl.addEventListener('click', () => {
+      noRepeat = !noRepeat;
+      toggleEl.classList.toggle('on', noRepeat);
+      toggleEl.setAttribute('aria-checked', noRepeat);
+      if (noRepeat) remaining = [...prompts];
+      updateCounter();
+    });
+
+    // ── Shuffle animation (two waves) ─────────────────────────────────
+    function doShuffle() {
+      return new Promise(resolve => {
+        function wave() {
+          document.querySelectorAll('#stackWrap .card').forEach((c, i) => {
+            const cls = `s${i + 1}`;
+            c.classList.remove(cls);
+            void c.offsetWidth; // force reflow to restart animation
+            c.classList.add(cls);
+            c.addEventListener('animationend', () => c.classList.remove(cls), { once: true });
+          });
+        }
+        wave();
+        setTimeout(wave, 920);
+        setTimeout(resolve, 1860);
+      });
+    }
+
+    // ── Vanish stack before reveal ────────────────────────────────────
+    function vanishStack() {
+      return new Promise(resolve => {
+        [...document.querySelectorAll('#stackWrap .card')].forEach((c, i) => {
+          setTimeout(() => c.classList.add('gone'), i * 38);
+        });
+        setTimeout(resolve, 440);
+      });
+    }
+
+    // ── Show the reveal overlay with flip ────────────────────────────
+    function showResult(text) {
+      cardText.textContent = text;
+      flipInner.classList.remove('flipped');     // reset to back face
+      overlay.classList.add('show');
+      setTimeout(() => flipInner.classList.add('flipped'), 480); // flip after spring-in
+    }
+
+    // ── Done — slide card down, fade overlay, rebuild stack ──────────
+    function reset() {
+      cardSpring.classList.add('exiting');
+      setTimeout(() => {
+        overlay.classList.remove('show');
+        setTimeout(() => {
+          cardSpring.classList.remove('exiting');
+          flipInner.classList.remove('flipped');
+          buildStack(true);
+          playBtn.disabled = false;
+          busy = false;
+        }, 450);
+      }, 300);
+    }
+
+    // ── Deck exhausted ────────────────────────────────────────────────
+    function showDeckScreen() {
+      deckScreen.classList.add('show');
+    }
+
+    reshuffleBtn.addEventListener('click', () => {
+      remaining = [...prompts];
+      updateCounter();
+      deckScreen.classList.remove('show');
+    });
+
+    // ── Main play flow ────────────────────────────────────────────────
+    playBtn.addEventListener('click', async () => {
+      if (busy) return;
+
+      // Deck exhausted — show message before doing anything
+      if (noRepeat && remaining.length === 0) {
+        showDeckScreen();
+        return;
+      }
+
+      busy = true;
+      playBtn.disabled = true;
+
+      await doShuffle();
+      await vanishStack();
+      showResult(pickCard());
+    });
+
+    doneBtn.addEventListener('click', reset);
+
+    // ── Init ──────────────────────────────────────────────────────────
+    buildStack();
+    loadPrompts();
+  </script>
 </body>
+
 </html>
