@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Card Draw</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;1,400;1,600&family=Outfit:wght@300;400;500&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    :root {
+      --felt: #122018;
+      --felt-hi: #1a2e22;
+      --cream: #f6f0e4;
+      --ink: #18120a;
+      --navy: #1b2060;
+      --gold: #c9a84c;
+      --gold-dim: rgba(201, 168, 76, 0.32);
+      --radius: 14px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Outfit', sans-serif;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    /* ── felt table ── */
+    .felt {
+      position: fixed; inset: 0;
+      background: radial-gradient(ellipse 90% 70% at 50% 55%, var(--felt-hi) 0%, var(--felt) 50%, #080f0b 100%);
+      z-index: 0;
+    }
+    .felt::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse 100% 100% at 50% 50%, transparent 38%, rgba(0, 0, 0, .6) 100%);
+    }
+    .felt::after {
+      content: ''; position: absolute; inset: 0;
+      background-image:
+        repeating-linear-gradient(45deg, transparent, transparent 3px, rgba(255,255,255,.012) 3px, rgba(255,255,255,.012) 4px),
+        repeating-linear-gradient(-45deg, transparent, transparent 3px, rgba(255,255,255,.012) 3px, rgba(255,255,255,.012) 4px);
+    }
+
+    /* ── stage ── */
+    .stage { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; }
+
+    .eyebrow { font-size: 10px; letter-spacing: .28em; text-transform: uppercase; color: rgba(255,255,255,.22); margin-bottom: 40px; }
+
+    /* ── card stack ── */
+    .stack-wrap {
+      position: relative; width: 210px; height: 295px;
+      transition: opacity .45s ease, transform .45s ease;
+    }
+    .stack-wrap.hidden { opacity: 0; transform: translateY(22px); }
+
+    @keyframes pile-nudge {
+      0%   { transform: rotate(0deg) translateX(0); }
+      20%  { transform: rotate(-1.4deg) translateX(-3px); }
+      55%  { transform: rotate(1.0deg) translateX(2px); }
+      80%  { transform: rotate(-.5deg) translateX(-1px); }
+      100% { transform: rotate(0deg) translateX(0); }
+    }
+    .stack-wrap.nudge { animation: pile-nudge .75s ease; }
+
+    .card {
+      position: absolute; width: 178px; height: 265px;
+      left: 50%; top: 50%;
+      border-radius: var(--radius);
+      will-change: transform, opacity;
+    }
+    .card:nth-child(1) { transform: translate(-50%,-50%) rotate(-4.5deg) translate(-5px, 2px); }
+    .card:nth-child(2) { transform: translate(-50%,-50%) rotate(-2.0deg) translate(-2px,-1px); }
+    .card:nth-child(3) { transform: translate(-50%,-50%) rotate(0.5deg)  translate(1px, 0px); }
+    .card:nth-child(4) { transform: translate(-50%,-50%) rotate(2.8deg)  translate(4px, 1px); }
+    .card:nth-child(5) { transform: translate(-50%,-50%) rotate(-1.0deg) translate(0px,-2px); }
+    .card:nth-child(6) { transform: translate(-50%,-50%) rotate(1.2deg)  translate(2px, 3px); }
+
+    .card-face {
+      width: 100%; height: 100%;
+      border-radius: var(--radius);
+      background: var(--navy);
+      border: 2.5px solid var(--gold);
+      box-shadow: 0 6px 28px rgba(0,0,0,.6), 0 2px 4px rgba(0,0,0,.4), inset 0 0 0 1px rgba(201,168,76,.18);
+      position: relative; overflow: hidden;
+    }
+    .card-face::before {
+      content: ''; position: absolute; inset: 10px;
+      border: 1px solid var(--gold-dim); border-radius: 7px;
+      background:
+        repeating-linear-gradient(45deg, transparent, transparent 7px, rgba(201,168,76,.07) 7px, rgba(201,168,76,.07) 8px),
+        repeating-linear-gradient(-45deg, transparent, transparent 7px, rgba(201,168,76,.07) 7px, rgba(201,168,76,.07) 8px);
+    }
+    .card-face::after {
+      content: '◆'; position: absolute; inset: 0;
+      display: grid; place-items: center;
+      font-size: 44px; color: rgba(201,168,76,.28);
+    }
+
+    /* ── controls ── */
+    .controls { margin-top: 28px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    .ctrl-row { display: flex; align-items: center; gap: 10px; }
+    .toggle-label { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.35); }
+    .toggle {
+      width: 40px; height: 22px; border-radius: 11px;
+      background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.15);
+      padding: 0 3px; cursor: pointer; display: flex; align-items: center;
+      transition: background .25s, border-color .25s; position: relative;
+    }
+    .toggle.on { background: rgba(201,168,76,.3); border-color: rgba(201,168,76,.6); }
+    .thumb {
+      width: 16px; height: 16px; border-radius: 50%;
+      background: rgba(255,255,255,.5); position: absolute; left: 3px;
+      transition: transform .25s cubic-bezier(.4,0,.2,1), background .25s;
+    }
+    .toggle.on .thumb { transform: translateX(18px); background: var(--gold); }
+    .counter { font-size: 11px; letter-spacing: .1em; color: rgba(201,168,76,.65); height: 16px; opacity: 0; transition: opacity .3s; }
+    .counter.visible { opacity: 1; }
+
+    /* ── play button (main screen) ── */
+    .play-btn {
+      margin-top: 20px;
+      padding: 15px 62px; border: none; border-radius: 100px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px; font-weight: 500; letter-spacing: .18em; text-transform: uppercase;
+      cursor: pointer;
+      background: linear-gradient(135deg, #b8882e 0%, #dfb75a 50%, #b8882e 100%);
+      background-size: 200% 100%; background-position: 0%;
+      color: #0b1410;
+      box-shadow: 0 4px 24px rgba(180,132,44,.42), 0 1px 4px rgba(0,0,0,.4);
+      transition: background-position .4s, transform .15s, box-shadow .15s, opacity .3s;
+    }
+    .play-btn:hover:not(:disabled) { background-position: 100%; transform: translateY(-2px); box-shadow: 0 10px 34px rgba(180,132,44,.5), 0 1px 4px rgba(0,0,0,.4); }
+    .play-btn:active:not(:disabled) { transform: translateY(0); }
+    .play-btn:disabled { opacity: .4; cursor: default; }
+
+    /* ── player strip (main screen) ── */
+    .player-strip {
+      display: flex; flex-direction: column; gap: 4px;
+      margin-top: 18px; width: 290px;
+      max-height: 200px; overflow-y: auto;
+    }
+    .player-strip::-webkit-scrollbar { width: 3px; }
+    .player-strip::-webkit-scrollbar-thumb { background: rgba(201,168,76,.2); border-radius: 2px; }
+
+    .pstrip-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 5px 11px; border-radius: 7px;
+      border: 1px solid transparent;
+      transition: background .35s, border-color .35s;
+    }
+    .pstrip-row.current { background: rgba(201,168,76,.07); border-color: rgba(201,168,76,.18); }
+    .pstrip-row.loser   { opacity: .55; }
+
+    .pstrip-name {
+      font-size: 11.5px; color: rgba(255,255,255,.32);
+      min-width: 62px; max-width: 90px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      transition: color .3s;
+    }
+    .pstrip-row.current .pstrip-name { color: rgba(201,168,76,.9); }
+    .pstrip-row.loser   .pstrip-name { color: rgba(255,255,255,.18); }
+
+    .pstrip-dots { display: flex; gap: 4px; align-items: center; flex: 1; }
+
+    .dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: rgba(255,255,255,.1);
+      transition: background .3s, box-shadow .3s;
+      flex-shrink: 0;
+    }
+    .dot.lit        { background: #d43535; box-shadow: 0 0 5px rgba(210,40,40,.6); }
+    .dot.lit.warn   { background: #d08020; box-shadow: 0 0 5px rgba(210,130,30,.6); }
+    .dot.lit.danger { background: #ff2020; box-shadow: 0 0 7px rgba(255,30,30,.9), 0 0 14px rgba(255,30,30,.35); }
+
+    .skull-badge { font-size: 10px; color: rgba(255,255,255,.25); margin-left: 2px; flex-shrink: 0; }
+
+    /* ── overlay ── */
+    .overlay {
+      position: fixed; inset: 0; z-index: 10;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px;
+      pointer-events: none; opacity: 0;
+      transition: opacity .4s ease;
+      background: rgba(8,15,11,.55);
+      backdrop-filter: blur(16px) saturate(.75);
+      -webkit-backdrop-filter: blur(16px) saturate(.75);
+    }
+    .overlay.show { opacity: 1; pointer-events: all; }
+
+    /* ── turn header ── */
+    .turn-header {
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      opacity: 0; transform: translateY(-10px);
+      transition: opacity .4s .15s ease, transform .4s .15s ease;
+    }
+    .overlay.show .turn-header { opacity: 1; transform: translateY(0); }
+
+    .turn-name {
+      font-family: 'Cormorant Garamond', serif; font-style: italic;
+      font-size: 18px; color: rgba(246,240,228,.8); letter-spacing: .06em;
+    }
+    .turn-dots-row { display: flex; gap: 7px; align-items: center; }
+    .turn-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: rgba(255,255,255,.12);
+      transition: background .3s, box-shadow .3s;
+    }
+    .turn-dot.lit        { background: #d43535; box-shadow: 0 0 6px rgba(210,40,40,.75); }
+    .turn-dot.lit.warn   { background: #d08020; box-shadow: 0 0 6px rgba(210,130,30,.75); }
+    .turn-dot.lit.danger { background: #ff2020; box-shadow: 0 0 8px rgba(255,30,30,.9), 0 0 16px rgba(255,30,30,.4); }
+
+    /* ── card spring container ── */
+    .card-spring {
+      width: 285px; height: 395px; perspective: 900px;
+      transform: scale(.72) translateY(32px); opacity: 0;
+      transition: transform .55s cubic-bezier(.34,1.56,.64,1), opacity .4s ease;
+    }
+    .overlay.show .card-spring { transform: scale(1) translateY(0); opacity: 1; }
+    .card-spring.exiting {
+      transform: scale(.82) translateY(55px) !important;
+      opacity: 0 !important;
+      transition: transform .32s ease-in !important, opacity .28s ease-in !important;
+    }
+
+    /* ── flip mechanism ── */
+    .flip-inner {
+      width: 100%; height: 100%; position: relative;
+      transform-style: preserve-3d;
+      transition: transform .65s cubic-bezier(.4,0,.2,1);
+    }
+    .flip-inner.flipped { transform: rotateY(180deg); }
+    .flip-face {
+      position: absolute; inset: 0; border-radius: 20px; border: 3px solid var(--gold);
+      backface-visibility: hidden; -webkit-backface-visibility: hidden;
+    }
+
+    .flip-back {
+      background: var(--navy);
+      box-shadow: 0 40px 100px rgba(0,0,0,.8), inset 0 0 0 1px rgba(201,168,76,.18);
+      overflow: hidden;
+    }
+    .flip-back::before {
+      content: ''; position: absolute; inset: 12px;
+      border: 1px solid var(--gold-dim); border-radius: 10px;
+      background:
+        repeating-linear-gradient(45deg, transparent, transparent 9px, rgba(201,168,76,.07) 9px, rgba(201,168,76,.07) 10px),
+        repeating-linear-gradient(-45deg, transparent, transparent 9px, rgba(201,168,76,.07) 9px, rgba(201,168,76,.07) 10px);
+    }
+    .flip-back::after {
+      content: '◆'; position: absolute; inset: 0;
+      display: grid; place-items: center;
+      font-size: 56px; color: rgba(201,168,76,.28);
+    }
+
+    .flip-front {
+      background: var(--cream);
+      transform: rotateY(180deg);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 40px 32px;
+      box-shadow: 0 40px 100px rgba(0,0,0,.8), inset 0 0 0 1px rgba(255,255,255,.06), 0 0 80px rgba(201,168,76,.1);
+      transition: background .45s, border-color .45s;
+    }
+
+    /* ── loser card treatment ── */
+    .flip-front.is-loser {
+      background: #bfb9af;
+      border-color: rgba(150,145,138,.7);
+    }
+    .flip-front.is-loser .card-text { color: #5a5550; }
+    .flip-front.is-loser .divider { background: linear-gradient(90deg, transparent, rgba(110,105,98,.45), transparent); }
+    .flip-front.is-loser .corner  { color: rgba(90,85,78,.6); }
+    /* skull watermark */
+    .flip-front.is-loser::after {
+      content: '☠';
+      position: absolute; inset: 0;
+      display: grid; place-items: center;
+      font-size: 88px; color: rgba(0,0,0,.055);
+      pointer-events: none;
+    }
+
+    .corner { position: absolute; font-size: 11px; color: var(--gold); font-family: 'Cormorant Garamond', serif; font-weight: 600; }
+    .corner.tl { top: 16px; left: 20px; }
+    .corner.br { bottom: 16px; right: 20px; transform: rotate(180deg); }
+    .divider { width: 50px; height: 1.5px; background: linear-gradient(90deg, transparent, var(--gold), transparent); margin: 22px 0; flex-shrink: 0; }
+    .card-text { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 22px; line-height: 1.55; color: var(--ink); text-align: center; }
+
+    /* ── action row (Drink / Play) ── */
+    .action-row {
+      display: flex; gap: 12px;
+      opacity: 0; transform: translateY(18px);
+      transition: opacity .45s .3s ease, transform .45s .3s ease;
+    }
+    .overlay.show .action-row { opacity: 1; transform: translateY(0); }
+
+    .act-btn {
+      padding: 14px 38px; border-radius: 100px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 12px; font-weight: 500; letter-spacing: .2em; text-transform: uppercase;
+      cursor: pointer;
+      transition: transform .15s, box-shadow .15s, background .2s, border-color .2s;
+    }
+    .act-btn:hover  { transform: translateY(-2px); }
+    .act-btn:active { transform: translateY(0) !important; }
+
+    .drink-btn {
+      background: transparent;
+      border: 1.5px solid rgba(220,70,70,.42);
+      color: rgba(220,130,130,.9);
+    }
+    .drink-btn:hover { background: rgba(220,60,60,.1); border-color: rgba(220,70,70,.8); }
+
+    .play-btn-ov {
+      background: linear-gradient(135deg, #b8882e 0%, #dfb75a 50%, #b8882e 100%);
+      background-size: 200% 100%; background-position: 0%;
+      border: none; color: #0b1410;
+      box-shadow: 0 4px 20px rgba(180,132,44,.35);
+    }
+    .play-btn-ov:hover { background-position: 100%; box-shadow: 0 8px 28px rgba(180,132,44,.5); }
+
+    /* ── deck exhausted screen ── */
+    .deck-screen {
+      position: fixed; inset: 0; z-index: 20;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(8,15,11,.72);
+      backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px);
+      pointer-events: none; opacity: 0; transition: opacity .4s ease;
+    }
+    .deck-screen.show { opacity: 1; pointer-events: all; }
+    .deck-inner { text-align: center; }
+    .deck-inner h2 { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 30px; font-weight: 600; color: var(--gold); margin-bottom: 8px; }
+    .deck-inner p  { font-size: 12px; letter-spacing: .12em; color: rgba(246,240,228,.45); margin-bottom: 32px; }
+    .reshuffle-btn {
+      padding: 13px 44px; border: 1.5px solid var(--gold-dim); border-radius: 100px;
+      background: transparent; color: var(--gold);
+      font-family: 'Outfit', sans-serif; font-size: 12px; letter-spacing: .18em; text-transform: uppercase;
+      cursor: pointer; transition: background .2s, border-color .2s;
+    }
+    .reshuffle-btn:hover { background: rgba(201,168,76,.1); border-color: var(--gold); }
+
+    /* ── shuffle keyframes ── */
+    @keyframes fly1 {
+      0%   { transform: translate(-50%,-50%) rotate(-4.5deg) translate(-5px,2px); }
+      38%  { transform: translate(calc(-50% - 135px), calc(-50% - 75px)) rotate(-30deg); opacity: .82; }
+      68%  { transform: translate(calc(-50% - 88px), calc(-50% + 18px)) rotate(-14deg); opacity: .9; }
+      100% { transform: translate(-50%,-50%) rotate(-4.5deg) translate(-5px,2px); }
+    }
+    @keyframes fly2 {
+      0%   { transform: translate(-50%,-50%) rotate(-2.0deg) translate(-2px,-1px); }
+      38%  { transform: translate(calc(-50% + 115px), calc(-50% - 92px)) rotate(25deg); opacity: .82; }
+      68%  { transform: translate(calc(-50% + 72px), calc(-50% + 12px)) rotate(11deg); opacity: .9; }
+      100% { transform: translate(-50%,-50%) rotate(-2.0deg) translate(-2px,-1px); }
+    }
+    @keyframes fly3 {
+      0%   { transform: translate(-50%,-50%) rotate(0.5deg) translate(1px,0px); }
+      38%  { transform: translate(calc(-50% - 55px), calc(-50% + 115px)) rotate(-22deg); opacity: .82; }
+      68%  { transform: translate(calc(-50% - 32px), calc(-50% + 42px)) rotate(-9deg); opacity: .9; }
+      100% { transform: translate(-50%,-50%) rotate(0.5deg) translate(1px,0px); }
+    }
+    @keyframes fly4 {
+      0%   { transform: translate(-50%,-50%) rotate(2.8deg) translate(4px,1px); }
+      38%  { transform: translate(calc(-50% + 105px), calc(-50% + 105px)) rotate(27deg); opacity: .82; }
+      68%  { transform: translate(calc(-50% + 62px), calc(-50% + 38px)) rotate(13deg); opacity: .9; }
+      100% { transform: translate(-50%,-50%) rotate(2.8deg) translate(4px,1px); }
+    }
+    @keyframes fly5 {
+      0%   { transform: translate(-50%,-50%) rotate(-1.0deg) translate(0px,-2px); }
+      38%  { transform: translate(calc(-50% + 22px), calc(-50% - 125px)) rotate(-18deg); opacity: .82; }
+      68%  { transform: translate(calc(-50% + 12px), calc(-50% - 38px)) rotate(-7deg); opacity: .9; }
+      100% { transform: translate(-50%,-50%) rotate(-1.0deg) translate(0px,-2px); }
+    }
+    @keyframes fly6 {
+      0%   { transform: translate(-50%,-50%) rotate(1.2deg) translate(2px,3px); }
+      38%  { transform: translate(calc(-50% - 115px), calc(-50% + 85px)) rotate(20deg); opacity: .82; }
+      68%  { transform: translate(calc(-50% - 68px), calc(-50% + 28px)) rotate(8deg); opacity: .9; }
+      100% { transform: translate(-50%,-50%) rotate(1.2deg) translate(2px,3px); }
+    }
+    @keyframes vanish {
+      to { opacity: 0; transform: translate(-50%,-50%) scale(.82) translateY(-20px); }
+    }
+
+    .card.s1 { animation: fly1 .88s ease-in-out; }
+    .card.s2 { animation: fly2 .88s ease-in-out .05s; }
+    .card.s3 { animation: fly3 .88s ease-in-out .10s; }
+    .card.s4 { animation: fly4 .88s ease-in-out .03s; }
+    .card.s5 { animation: fly5 .88s ease-in-out .07s; }
+    .card.s6 { animation: fly6 .88s ease-in-out .02s; }
+    .card.gone { animation: vanish .4s ease-in forwards; }
+
+    /* ══════════════════════════════════════
+       BURGER BUTTON
+    ══════════════════════════════════════ */
+    .burger-btn {
+      position: fixed; top: 20px; left: 20px; z-index: 50;
+      width: 42px; height: 42px; border-radius: 50%;
+      border: 1px solid rgba(201,168,76,.22);
+      background: rgba(8,15,11,.78);
+      color: rgba(201,168,76,.65);
+      font-size: 14px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      backdrop-filter: blur(8px);
+      transition: border-color .2s, color .2s, background .2s;
+    }
+    .burger-btn:hover { border-color: var(--gold); color: var(--gold); background: rgba(201,168,76,.08); }
+
+    /* ══════════════════════════════════════
+       DRAWER OVERLAY
+    ══════════════════════════════════════ */
+    .drawer-overlay {
+      position: fixed; inset: 0; z-index: 60;
+      background: rgba(0,0,0,.42);
+      backdrop-filter: blur(4px);
+      opacity: 0; pointer-events: none;
+      transition: opacity .3s;
+    }
+    .drawer-overlay.open { opacity: 1; pointer-events: all; }
+
+    /* ══════════════════════════════════════
+       DRAWER
+    ══════════════════════════════════════ */
+    .drawer {
+      position: fixed; top: 0; left: 0; bottom: 0;
+      width: 310px; max-width: 90vw; z-index: 70;
+      background: linear-gradient(160deg, #0c1910 0%, #091310 100%);
+      border-right: 1px solid rgba(201,168,76,.14);
+      box-shadow: 6px 0 48px rgba(0,0,0,.55);
+      transform: translateX(-100%);
+      transition: transform .35s cubic-bezier(.4,0,.2,1);
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    .drawer.open { transform: translateX(0); }
+
+    .drawer-header {
+      padding: 24px 20px 18px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid rgba(201,168,76,.1);
+      flex-shrink: 0;
+    }
+    .drawer-header h3 { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 22px; color: var(--gold); }
+
+    .drawer-close {
+      width: 30px; height: 30px; border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.12);
+      background: transparent; color: rgba(255,255,255,.4);
+      font-size: 13px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: border-color .2s, color .2s;
+    }
+    .drawer-close:hover { border-color: rgba(255,255,255,.4); color: rgba(255,255,255,.9); }
+
+    .drawer-body {
+      flex: 1; overflow-y: auto; padding: 22px 20px;
+      display: flex; flex-direction: column; gap: 28px;
+    }
+    .drawer-body::-webkit-scrollbar { width: 3px; }
+    .drawer-body::-webkit-scrollbar-thumb { background: rgba(201,168,76,.2); border-radius: 2px; }
+
+    .drawer-footer {
+      padding: 16px 20px;
+      border-top: 1px solid rgba(201,168,76,.08);
+      flex-shrink: 0;
+    }
+
+    .section-title {
+      font-size: 10px; letter-spacing: .25em; text-transform: uppercase;
+      color: rgba(255,255,255,.28); margin-bottom: 14px;
+    }
+    .section-title span {
+      color: rgba(255,255,255,.16); font-size: 9px;
+      text-transform: none; letter-spacing: .08em; margin-left: 6px;
+    }
+
+    /* ── number control ── */
+    .number-ctrl {
+      display: inline-flex; align-items: center;
+      background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.09); border-radius: 100px;
+      overflow: hidden;
+    }
+    .num-btn {
+      width: 40px; height: 38px; border: none; background: transparent;
+      color: rgba(255,255,255,.5); font-size: 18px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .15s, color .15s;
+    }
+    .num-btn:hover:not(:disabled) { background: rgba(255,255,255,.08); color: white; }
+    .num-btn:disabled { opacity: .28; cursor: default; }
+    .num-val { font-size: 16px; font-weight: 500; color: var(--gold); min-width: 34px; text-align: center; }
+
+    /* ── player list ── */
+    .player-list { display: flex; flex-direction: column; gap: 7px; margin-bottom: 8px; }
+
+    .player-row {
+      display: flex; align-items: center; gap: 9px;
+      padding: 9px 11px;
+      background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.07); border-radius: 10px;
+      transition: background .15s, border-color .15s, opacity .15s;
+      cursor: default;
+    }
+    .player-row.drag-over { border-color: rgba(201,168,76,.4); background: rgba(201,168,76,.07); }
+    .player-row.dragging  { opacity: .38; }
+
+    .drag-handle { color: rgba(255,255,255,.2); cursor: grab; font-size: 12px; flex-shrink: 0; padding: 0 1px; }
+    .drag-handle:active { cursor: grabbing; }
+
+    .player-name-input {
+      flex: 1; background: transparent; border: none; outline: none;
+      color: rgba(255,255,255,.8); font-family: 'Outfit', sans-serif; font-size: 14px; min-width: 0;
+    }
+    .player-name-input::placeholder { color: rgba(255,255,255,.18); }
+
+    .remove-player-btn {
+      width: 24px; height: 24px; border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.1); background: transparent;
+      color: rgba(255,255,255,.28); font-size: 11px; cursor: pointer; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: border-color .2s, color .2s, background .2s;
+    }
+    .remove-player-btn:hover:not(:disabled) { border-color: rgba(220,60,60,.5); color: rgba(220,100,100,.8); background: rgba(220,60,60,.1); }
+    .remove-player-btn:disabled { opacity: .25; cursor: default; }
+
+    .add-player-btn {
+      width: 100%; padding: 9px;
+      border: 1px dashed rgba(201,168,76,.2); border-radius: 10px;
+      background: transparent; color: rgba(201,168,76,.4);
+      font-family: 'Outfit', sans-serif; font-size: 11.5px; letter-spacing: .12em; text-transform: uppercase;
+      cursor: pointer; transition: border-color .2s, color .2s, background .2s;
+    }
+    .add-player-btn:hover { border-color: rgba(201,168,76,.5); color: var(--gold); background: rgba(201,168,76,.05); }
+
+    /* ── reset round button ── */
+    .reset-round-btn {
+      width: 100%; padding: 11px;
+      border: 1px solid rgba(255,255,255,.08); border-radius: 10px;
+      background: transparent; color: rgba(255,255,255,.3);
+      font-family: 'Outfit', sans-serif; font-size: 11px; letter-spacing: .15em; text-transform: uppercase;
+      cursor: pointer; transition: border-color .2s, color .2s, background .2s;
+      display: flex; align-items: center; justify-content: center; gap: 7px;
+    }
+    .reset-round-btn:hover { border-color: rgba(255,255,255,.22); color: rgba(255,255,255,.65); background: rgba(255,255,255,.04); }
+  </style>
+</head>
+
+<body>
+
+  <!-- ── Burger button ── -->
+  <button class="burger-btn" id="burgerBtn" aria-label="Open game settings">
+    <i class="fa-solid fa-bars"></i>
+  </button>
+
+  <!-- ── Drawer overlay (click to close) ── -->
+  <div class="drawer-overlay" id="drawerOverlay"></div>
+
+  <!-- ── Settings drawer ── -->
+  <div class="drawer" id="drawer" role="dialog" aria-label="Game settings">
+    <div class="drawer-header">
+      <h3>Game Setup</h3>
+      <button class="drawer-close" id="drawerClose" aria-label="Close settings">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <div class="drawer-body">
+
+      <!-- Max shots -->
+      <div>
+        <p class="section-title">Max Shots per Player</p>
+        <div class="number-ctrl">
+          <button class="num-btn" id="shotsDown" aria-label="Decrease">−</button>
+          <span class="num-val" id="maxShotsVal">3</span>
+          <button class="num-btn" id="shotsUp" aria-label="Increase">+</button>
+        </div>
+      </div>
+
+      <!-- Players -->
+      <div>
+        <p class="section-title">Players <span>drag to reorder</span></p>
+        <div class="player-list" id="playerList"></div>
+        <button class="add-player-btn" id="addPlayerBtn">
+          <i class="fa-solid fa-plus" style="margin-right:5px;font-size:10px"></i>Add Player
+        </button>
+      </div>
+
+    </div>
+
+    <div class="drawer-footer">
+      <button class="reset-round-btn" id="resetRoundBtn">
+        <i class="fa-solid fa-rotate-left" style="font-size:10px"></i>Reset Round
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Felt table ── -->
+  <div class="felt"></div>
+
+  <!-- ── Main stage ── -->
+  <div class="stage">
+    <p class="eyebrow">Draw a card</p>
+    <div class="stack-wrap" id="stackWrap"></div>
+
+    <div class="controls">
+      <div class="ctrl-row">
+        <span class="toggle-label">No repeats</span>
+        <div class="toggle" id="noRepeatToggle" role="switch" aria-checked="false">
+          <span class="thumb"></span>
+        </div>
+      </div>
+      <span class="counter" id="counter"></span>
+    </div>
+
+    <!-- Player strip -->
+    <div class="player-strip" id="playerStrip"></div>
+
+    <button class="play-btn" id="playBtn">Play</button>
+  </div>
+
+  <!-- ── Reveal overlay ── -->
+  <div class="overlay" id="overlay">
+
+    <div class="turn-header" id="turnHeader">
+      <p class="turn-name" id="turnName"></p>
+      <div class="turn-dots-row" id="turnDots"></div>
+    </div>
+
+    <div class="card-spring" id="cardSpring">
+      <div class="flip-inner" id="flipInner">
+        <div class="flip-face flip-back"></div>
+        <div class="flip-face flip-front" id="flipFront">
+          <span class="corner tl">◆</span>
+          <span class="corner br">◆</span>
+          <div class="divider"></div>
+          <p class="card-text" id="cardText"></p>
+          <div class="divider"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-row">
+      <button class="act-btn drink-btn" id="drinkBtn">
+        <i class="fa-solid fa-wine-glass" style="margin-right:6px;font-size:10px"></i>Drink
+      </button>
+      <button class="act-btn play-btn-ov" id="playOverlayBtn">Play</button>
+    </div>
+
+  </div>
+
+  <!-- ── Deck exhausted screen ── -->
+  <div class="deck-screen" id="deckScreen">
+    <div class="deck-inner">
+      <h2>Deck Complete</h2>
+      <p>Every card has been drawn</p>
+      <button class="reshuffle-btn" id="reshuffleBtn">Reshuffle &amp; Continue</button>
+    </div>
+  </div>
+
+  <script>
+    /* ═══════════════════════════════════════════
+       CONSTANTS & STATE
+    ═══════════════════════════════════════════ */
+    const STACK        = 6;
+    const SETTINGS_KEY = 'cardDraw_v2';
+    const SETTINGS_TTL = 5 * 60 * 1000; // 5 minutes
+
+    let prompts  = [];
+    let remaining = [];
+    let noRepeat  = false;
+    let busy      = false;
+
+    let players = [
+      { name: 'Player 1', shots: 0 },
+      { name: 'Player 2', shots: 0 },
+    ];
+    let maxShots         = 3;
+    let currentPlayerIdx = 0;
+
+    /* ═══════════════════════════════════════════
+       DOM REFS
+    ═══════════════════════════════════════════ */
+    const stackWrap      = document.getElementById('stackWrap');
+    const overlay        = document.getElementById('overlay');
+    const cardSpring     = document.getElementById('cardSpring');
+    const flipInner      = document.getElementById('flipInner');
+    const flipFront      = document.getElementById('flipFront');
+    const cardText       = document.getElementById('cardText');
+    const playBtn        = document.getElementById('playBtn');
+    const toggleEl       = document.getElementById('noRepeatToggle');
+    const counterEl      = document.getElementById('counter');
+    const deckScreen     = document.getElementById('deckScreen');
+    const reshuffleBtn   = document.getElementById('reshuffleBtn');
+    const playerStrip    = document.getElementById('playerStrip');
+    const turnName       = document.getElementById('turnName');
+    const turnDots       = document.getElementById('turnDots');
+    const drinkBtn       = document.getElementById('drinkBtn');
+    const playOverlayBtn = document.getElementById('playOverlayBtn');
+    const burgerBtn      = document.getElementById('burgerBtn');
+    const drawer         = document.getElementById('drawer');
+    const drawerOverlay  = document.getElementById('drawerOverlay');
+    const drawerClose    = document.getElementById('drawerClose');
+    const playerList     = document.getElementById('playerList');
+    const addPlayerBtn   = document.getElementById('addPlayerBtn');
+    const maxShotsVal    = document.getElementById('maxShotsVal');
+    const shotsDown      = document.getElementById('shotsDown');
+    const shotsUp        = document.getElementById('shotsUp');
+    const resetRoundBtn  = document.getElementById('resetRoundBtn');
+
+    /* ═══════════════════════════════════════════
+       SETTINGS PERSISTENCE (5-min TTL)
+    ═══════════════════════════════════════════ */
+    function saveSettings() {
+      try {
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify({
+          players: players.map(p => ({ name: p.name })),
+          maxShots,
+          savedAt: Date.now(),
+        }));
+      } catch {}
+    }
+
+    function loadSettings() {
+      try {
+        const raw = localStorage.getItem(SETTINGS_KEY);
+        if (!raw) return;
+        const { players: sp, maxShots: sm, savedAt } = JSON.parse(raw);
+        if (Date.now() - savedAt > SETTINGS_TTL) {
+          localStorage.removeItem(SETTINGS_KEY);
+          return;
+        }
+        if (Array.isArray(sp) && sp.length >= 2) {
+          players = sp.map(p => ({ name: p.name || 'Player', shots: 0 }));
+        }
+        if (typeof sm === 'number' && sm >= 1 && sm <= 10) maxShots = sm;
+      } catch {}
+    }
+
+    /* ═══════════════════════════════════════════
+       DRAWER
+    ═══════════════════════════════════════════ */
+    function openDrawer() {
+      drawer.classList.add('open');
+      drawerOverlay.classList.add('open');
+    }
+    function closeDrawer() {
+      drawer.classList.remove('open');
+      drawerOverlay.classList.remove('open');
+      saveSettings();
+      renderPlayerStrip();
+    }
+
+    burgerBtn.addEventListener('click', openDrawer);
+    drawerClose.addEventListener('click', closeDrawer);
+    drawerOverlay.addEventListener('click', closeDrawer);
+
+    /* max shots */
+    function syncShotsUI() {
+      maxShotsVal.textContent = maxShots;
+      shotsDown.disabled = maxShots <= 1;
+      shotsUp.disabled   = maxShots >= 10;
+    }
+    shotsDown.addEventListener('click', () => {
+      if (maxShots > 1)  { maxShots--; syncShotsUI(); saveSettings(); renderPlayerStrip(); }
+    });
+    shotsUp.addEventListener('click', () => {
+      if (maxShots < 10) { maxShots++; syncShotsUI(); saveSettings(); renderPlayerStrip(); }
+    });
+
+    /* reset round */
+    resetRoundBtn.addEventListener('click', () => {
+      players.forEach(p => { p.shots = 0; });
+      currentPlayerIdx = 0;
+      saveSettings();
+      renderPlayerStrip();
+      closeDrawer();
+    });
+
+    /* ── player list (with drag-to-reorder) ── */
+    let dragSrcIdx = null;
+
+    function escHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function renderPlayerList() {
+      playerList.innerHTML = '';
+      players.forEach((p, i) => {
+        const row = document.createElement('div');
+        row.className = 'player-row';
+        row.draggable = true;
+        row.dataset.index = i;
+        row.innerHTML = `
+          <span class="drag-handle" title="Drag to reorder">
+            <i class="fa-solid fa-grip-vertical"></i>
+          </span>
+          <input
+            class="player-name-input" type="text"
+            value="${escHtml(p.name)}"
+            placeholder="Player ${i + 1}"
+            maxlength="20" data-idx="${i}"
+          />
+          <button
+            class="remove-player-btn" data-idx="${i}"
+            aria-label="Remove ${escHtml(p.name)}"
+            ${players.length <= 2 ? 'disabled' : ''}
+          ><i class="fa-solid fa-xmark"></i></button>
+        `;
+
+        row.querySelector('.player-name-input').addEventListener('input', e => {
+          const idx = +e.target.dataset.idx;
+          players[idx].name = e.target.value.trim() || `Player ${idx + 1}`;
+          saveSettings();
+          renderPlayerStrip();
+        });
+
+        row.querySelector('.remove-player-btn').addEventListener('click', e => {
+          const idx = +e.currentTarget.dataset.idx;
+          if (players.length <= 2) return;
+          players.splice(idx, 1);
+          if (currentPlayerIdx >= players.length) currentPlayerIdx = 0;
+          saveSettings();
+          renderPlayerList();
+          renderPlayerStrip();
+        });
+
+        /* drag events */
+        row.addEventListener('dragstart', e => {
+          dragSrcIdx = i;
+          e.dataTransfer.effectAllowed = 'move';
+          setTimeout(() => row.classList.add('dragging'), 0);
+        });
+        row.addEventListener('dragend', () => {
+          row.classList.remove('dragging');
+          playerList.querySelectorAll('.player-row').forEach(r => r.classList.remove('drag-over'));
+        });
+        row.addEventListener('dragover', e => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+          playerList.querySelectorAll('.player-row').forEach(r => r.classList.remove('drag-over'));
+          row.classList.add('drag-over');
+        });
+        row.addEventListener('dragleave', () => row.classList.remove('drag-over'));
+        row.addEventListener('drop', e => {
+          e.preventDefault();
+          row.classList.remove('drag-over');
+          if (dragSrcIdx === null || dragSrcIdx === i) return;
+          const [moved] = players.splice(dragSrcIdx, 1);
+          players.splice(i, 0, moved);
+          currentPlayerIdx = 0;
+          dragSrcIdx = null;
+          saveSettings();
+          renderPlayerList();
+          renderPlayerStrip();
+        });
+
+        playerList.appendChild(row);
+      });
+    }
+
+    addPlayerBtn.addEventListener('click', () => {
+      players.push({ name: `Player ${players.length + 1}`, shots: 0 });
+      saveSettings();
+      renderPlayerList();
+      renderPlayerStrip();
+    });
+
+    /* ═══════════════════════════════════════════
+       DOT CLASS HELPER
+    ═══════════════════════════════════════════ */
+    function getDotClass(di, shots) {
+      if (di >= shots) return 'dot';
+      if (maxShots === 1)         return 'dot lit danger';
+      if (di === maxShots - 1)    return 'dot lit danger';
+      if (di === maxShots - 2)    return 'dot lit warn';
+      return 'dot lit';
+    }
+
+    /* ═══════════════════════════════════════════
+       PLAYER STRIP (main screen)
+    ═══════════════════════════════════════════ */
+    function renderPlayerStrip() {
+      playerStrip.innerHTML = '';
+      players.forEach((p, i) => {
+        const isLoser   = p.shots >= maxShots;
+        const isCurrent = i === currentPlayerIdx;
+
+        const row = document.createElement('div');
+        row.className = [
+          'pstrip-row',
+          isCurrent ? 'current' : '',
+          isLoser   ? 'loser'   : '',
+        ].filter(Boolean).join(' ');
+
+        const dotsHtml = Array.from({ length: maxShots }, (_, di) =>
+          `<span class="${getDotClass(di, p.shots)}"></span>`
+        ).join('');
+
+        row.innerHTML = `
+          <span class="pstrip-name">${escHtml(p.name)}</span>
+          <div class="pstrip-dots">${dotsHtml}</div>
+          ${isLoser ? '<span class="skull-badge">☠</span>' : ''}
+        `;
+        playerStrip.appendChild(row);
+      });
+    }
+
+    /* ═══════════════════════════════════════════
+       TURN DOTS (overlay)
+    ═══════════════════════════════════════════ */
+    function renderTurnDots() {
+      const shots = players[currentPlayerIdx].shots;
+      turnDots.innerHTML = Array.from({ length: maxShots }, (_, di) => {
+        const isLit = di < shots;
+        let cls = 'turn-dot';
+        if (isLit) {
+          if (maxShots === 1 || di === maxShots - 1) cls += ' lit danger';
+          else if (di === maxShots - 2)              cls += ' lit warn';
+          else                                       cls += ' lit';
+        }
+        return `<span class="${cls}"></span>`;
+      }).join('');
+    }
+
+    /* ═══════════════════════════════════════════
+       STACK
+    ═══════════════════════════════════════════ */
+    function buildStack(animate = false) {
+      if (animate) stackWrap.classList.add('hidden');
+      stackWrap.innerHTML = '';
+      for (let i = 0; i < STACK; i++) {
+        const el = document.createElement('div');
+        el.className = 'card';
+        el.innerHTML = '<div class="card-face"></div>';
+        stackWrap.appendChild(el);
+      }
+      if (animate) {
+        requestAnimationFrame(() => requestAnimationFrame(() => stackWrap.classList.remove('hidden')));
+      } else {
+        setTimeout(() => {
+          stackWrap.classList.add('nudge');
+          stackWrap.addEventListener('animationend', () => stackWrap.classList.remove('nudge'), { once: true });
+        }, 900);
+      }
+    }
+
+    /* ═══════════════════════════════════════════
+       PROMPTS
+    ═══════════════════════════════════════════ */
+    async function loadPrompts() {
+      try {
+        const res = await fetch(`cards.json?v=${Date.now()}`);
+        if (!res.ok) throw new Error();
+        prompts = await res.json();
+      } catch {
+        prompts = [
+          'Could not load cards.json.',
+          'Serve both files via a local server — not file://',
+        ];
+      }
+      remaining = [...prompts];
+      updateCounter();
+    }
+
+    function updateCounter() {
+      if (noRepeat) {
+        counterEl.textContent = `${remaining.length} of ${prompts.length} remaining`;
+        counterEl.classList.add('visible');
+      } else {
+        counterEl.classList.remove('visible');
+      }
+    }
+
+    function pickCard() {
+      if (noRepeat) {
+        const idx = Math.floor(Math.random() * remaining.length);
+        const [card] = remaining.splice(idx, 1);
+        updateCounter();
+        return card;
+      }
+      return prompts[Math.floor(Math.random() * prompts.length)];
+    }
+
+    toggleEl.addEventListener('click', () => {
+      noRepeat = !noRepeat;
+      toggleEl.classList.toggle('on', noRepeat);
+      toggleEl.setAttribute('aria-checked', String(noRepeat));
+      if (noRepeat) remaining = [...prompts];
+      updateCounter();
+    });
+
+    /* ═══════════════════════════════════════════
+       ANIMATIONS
+    ═══════════════════════════════════════════ */
+    function doShuffle() {
+      return new Promise(resolve => {
+        function wave() {
+          stackWrap.querySelectorAll('.card').forEach((c, i) => {
+            const cls = `s${i + 1}`;
+            c.classList.remove(cls);
+            void c.offsetWidth;
+            c.classList.add(cls);
+            c.addEventListener('animationend', () => c.classList.remove(cls), { once: true });
+          });
+        }
+        wave();
+        setTimeout(wave, 920);
+        setTimeout(resolve, 1860);
+      });
+    }
+
+    function vanishStack() {
+      return new Promise(resolve => {
+        [...stackWrap.querySelectorAll('.card')].forEach((c, i) =>
+          setTimeout(() => c.classList.add('gone'), i * 38)
+        );
+        setTimeout(resolve, 440);
+      });
+    }
+
+    /* ═══════════════════════════════════════════
+       OVERLAY
+    ═══════════════════════════════════════════ */
+    function showResult(text) {
+      const p       = players[currentPlayerIdx];
+      const isLoser = p.shots >= maxShots;
+
+      cardText.textContent = text;
+      turnName.textContent = `${p.name}'s turn`;
+      renderTurnDots();
+
+      flipFront.classList.toggle('is-loser', isLoser);
+      flipInner.classList.remove('flipped');
+      overlay.classList.add('show');
+      setTimeout(() => flipInner.classList.add('flipped'), 480);
+    }
+
+    function dismissOverlay() {
+      cardSpring.classList.add('exiting');
+      setTimeout(() => {
+        overlay.classList.remove('show');
+        setTimeout(() => {
+          cardSpring.classList.remove('exiting');
+          flipInner.classList.remove('flipped');
+          buildStack(true);
+          playBtn.disabled = false;
+          busy = false;
+        }, 450);
+      }, 300);
+    }
+
+    /* ═══════════════════════════════════════════
+       DRINK / PLAY
+    ═══════════════════════════════════════════ */
+    drinkBtn.addEventListener('click', () => {
+      const p = players[currentPlayerIdx];
+      if (p.shots < maxShots) p.shots++;
+      advanceTurn();
+      dismissOverlay();
+    });
+
+    playOverlayBtn.addEventListener('click', () => {
+      players[currentPlayerIdx].shots = 0;
+      advanceTurn();
+      dismissOverlay();
+    });
+
+    function advanceTurn() {
+      currentPlayerIdx = (currentPlayerIdx + 1) % players.length;
+      renderPlayerStrip();
+    }
+
+    /* ═══════════════════════════════════════════
+       DECK EXHAUSTED
+    ═══════════════════════════════════════════ */
+    reshuffleBtn.addEventListener('click', () => {
+      remaining = [...prompts];
+      updateCounter();
+      deckScreen.classList.remove('show');
+    });
+
+    /* ═══════════════════════════════════════════
+       MAIN PLAY
+    ═══════════════════════════════════════════ */
+    playBtn.addEventListener('click', async () => {
+      if (busy) return;
+      if (noRepeat && remaining.length === 0) {
+        deckScreen.classList.add('show');
+        return;
+      }
+      busy = true;
+      playBtn.disabled = true;
+      await doShuffle();
+      await vanishStack();
+      showResult(pickCard());
+    });
+
+    /* ═══════════════════════════════════════════
+       INIT
+    ═══════════════════════════════════════════ */
+    loadSettings();
+    syncShotsUI();
+    buildStack();
+    loadPrompts();
+    renderPlayerList();
+    renderPlayerStrip();
+  </script>
+</body>
+</html>
+
+[
+  "Kể một kỷ niệm xấu hổ / 2 ly",
+  "Hãy nêu lên một ấn tượng về người bên phải / 2 ly",
+  "Plank 20 giây / 2 ly",
+  "Để mọi người xem album ảnh trong 30 giây / 2 ly",
+  "20 cái jumping jacks / 2 ly",
+  "Điều gần nhất đã search / 1 ly",
+  "Mô tả buổi hẹn lý tưởng / 2 ly",
+  "Slow motion trong 2 vòng tới / 3 ly",
+  "Trong 3 vòng tới gọi người bên trái là 'mị' / 2 ly",
+  "Gãi lưng / đấm lưng / dẫm lưng cho người bên cạnh trong 1 phút, do người đấy chọn / 2 ly",
+  "Trong 2 vòng tới chỉ được dùng câu bị động / 2 ly",
+  "Trong 3 vòng tới, tất cả mọi người kết câu bằng 'Skrrrt' / 3 ly",
+  "Không được xưng mày tao trong 2 vòng tới, chỉ được xưng hô bằng tớ và ấy / 2 ly",
+  "Một điều toxic nhỏ mà cậu biết mình có / 3 ly",
+  "Hãy nói 3 chuyện trong đó có 2 chuyện thật và 1 chuyện giả. Người xung quanh ai đoán sai sẽ phải uống 1 ly",
+  "Kể một redflag của người bên trái / 2 ly",
+  "Mô tả aura quyến rũ của người đối diện bằng thuật ngữ marketing / 2 ly",
+  "Ngửi chân người bên cạnh / 2 ly",
+  "Trong 3 vòng tới, trước khi nói phải dậm chân 2 lần / 3 ly",
+  "Nói một câu thả thính cực tệ cho người đối diện / 2 ly",
+  "Trong 2 vòng tới không được dùng chữ ‘không’ / 2 ly",
+  "Trong 3 vòng tới phải kết thúc bằng ‘đỉnh chưa?’ / 2 ly",
+  "Hãy đùa một câu, không ai cười thì uống 1 ly / 3 ly",
+  "Mô tả aura người đối diện như mùi nước xả vải / 2 ly",
+  "Nếu phải/được đi chơi riêng với người bên trái, cậu sẽ đi đâu? / 1 ly",
+  "Trong 2 vòng tới, mỗi khi muốn nói gì thì phải vỗ vai người bên phải / 2 ly",
+  "Hãy khoe một lần tự thấy bản thân mình thật khéo và nhanh nhẹn / 1 ly",
+  "3 cái chống đẩy / 2 ly",
+  "Chuyển cho người bên trái 20k / 1 ly",
+  "Thật lòng khen người đối diện 3 câu / 2 ly",
+  "Ở round sau đồng ý với các câu hỏi / 2 ly",
+  "Trình diễn 1 bài văn nghệ trong 1 phút / 3 ly",
+  "Mặc 2 cái áo ở round sau / 2 ly",
+  "Mặc 2 cái quần ở round sau / 2 ly",
+  "Show ảnh thứ 50 trong album ảnh / 2 ly",
+  "Nhắn tin cho người thứ 6 trong messenger / 2 ly",
+  "Giao tiếp bằng tiếng anh trong 2 vòng tới / 2 ly",
+  "Đánh răng ngay lập tức / 3 ly",
+  "Chụp ngay 1 kiểu ảnh xấu gửi cho nhóm / 2 ly",
+  "Xoay 10 vòng và đi không ngã, ngã thì uống 1 ly / 2 ly",
+  "Cõng người bên phải đi 1 vòng phòng / 2 ly",
+  "Bóp chân cho người bên phải trong 1 phút / 2 ly",
+  "Dùng chân đút rượu cho người bên trái / 3 ly",
+  "Để người đối diện vẽ lên mặt bằng son trong 1 phút và để đến lúc kết thúc / 3 ly",
+  "Quay vid hát nhép tiktok do mọi người chọn / 2 ly",
+  "Bắt đầu mọi câu nói bằng gâu gâu trong 2 vòng tới / 2 ly, quên ko nói thì phạt 1 ly",
+  "Đi rửa tay ngay lập tức / 2 ly",
+  "Đi xuống chạm tay vào xe và đi lên / 2 ly",
+  "Không được nói từ 'kiểu' trong 3 vòng tới, nói thì uống 1 ly / 2 ly",
+  "Miêu tả người đối diện với 3 từ khoá 'hấp dẫn', 'mi nhon', 'cảm ơn' / 2 ly",
+  "Lên giường nằm và đắp chăn trong 1 vòng / 3 ly",
+  "Để 'tôi bị điên' lên note instagram / 2 ly",
+  "Cùng với người đối diện ngậm nước và nhìn vào mắt nhau, ai cười trước thì uống 1 ly",
+  "Kể tên 5 bộ phim thích nhất / 1 ly",
+  "Đội mũ burger king trong 2 vòng / 1 ly",
+  "Chỉ được dùng ngón cái và ngón trỏ trong 2 phút / 2 ly",
+  "Làm trợ lý cho người bên trái trong 2 vòng / 2 ly",
+  "Đứng úp mặt vào góc tường trong 30 giây / 1 ly",
+  "Pose 5 dáng người mẫu chụp ảnh với người đối diện / 2 ly",
+  "Được chỉ đạo người uống gần nhất trong 2 vòng tới / 2 ly",
+  "Nói 'vãi' thì tất cả uống 1 ly trong 1 vòng / 2 ly",
+  "Bón cho người bên cạnh 1 miếng / 2 ly",
+  "Mặc áo hở nách trong 2 vòng tới / 2 ly",
+  "Tất cả nhắm mắt và chỉ vào 1 người để uống 2 ly, nếu bằng số người thì tất cả cùng uống 2 ly / 2 ly",
+  "Bế người bên trái (không bế được thì 1 ly) / 2 ly",
+  "Để người đối diện vẽ lên mặt bằng bút dạ trong 1 phút và để đến lúc kết thúc / 3 ly",
+  "Deadlift với người bên phải / 2 ly",
+  "Nhận thử thách của người đối diện / 2 ly",
+  "Trong 3 vòng tới ai nói tục thì uống 1 ly / 2 ly",
+  "Tất cả giơ số ngón tay, ai trùng với nhau thì uống 1 ly",
+  "Giữ tư thế ngồi xổm trong 1 vòng tới, đứng dậy thì uống 1 ly / 2 ly",
+  "Nằm sàn giơ 2 chân lên 45 độ trong 30 giây / 2 ly",
+  "Chỉ được giao tiếp bằng ngôn ngữ cơ thể trong 1 vòng, không được nói / 2 ly",
+  "Đứng sau lưng người bên trái và mát xa vai 30 giây / 1 ly",
+  "High five mọi người trước khi nói bất cứ điều gì trong 2 vòng tới / 2 ly",
+  "Giữ nét mặt cau có trong toàn bộ 2 vòng tới, ai cười uống 1 ly / 2 ly",
+  "Mỗi lần muốn uống nước/rượu phải xin phép người đối diện trong 2 vòng / 2 ly",
+  "Trong 2 vòng tới phải khoanh tay liên tục, bỏ tay ra uống 1 ly / 2 ly",
+  "Ngồi im như tượng trong 1 phút, ai cử động trước uống 2 ly / 2 ly",
+  "Nhắm mắt đoán người nào đang chạm vào tay cậu, đoán sai uống 1 ly / 2 ly",
+  "Không dùng tay trong 2 vòng tới / 2 ly",
+  "Trong vòng tới, mỗi lần nghe ai nói tên mình phải đứng dậy pose 1 dáng / 2 ly",
+  "Đi refill đồ uống cho 1 người bất kỳ / 1 ly",
+  "Mỗi người nói 1 từ để tạo thành câu, ai làm hỏng câu thì uống 1 ly / 2 ly",
+  "Trong 2 vòng tới, mỗi lần ai uống rượu cậu phải nói 'quá đẳng cấp' / 1 ly",
+  "Tạo một dáng để chụp bìa tạp chí thời trang / 1 ly",
+  "Trong vòng 10 giây tới phải cù được người bên trái / 2 ly",
+  "Người bên trái đeo tai nghe max volume, bạn bịt mắt và người bên phải bịt miệng trong 1 vòng tới",
+  "Uống 2 ly / 2 ly",
+  "Bắt dầu một vòng nối từ, ai thua uống 2 ly (3 từ đầu không được là từ chết)",
+  "Không được sử dụng chữ 'cái' trong 1 vòng tới / 2 ly",
+  "Oẳn tù tì với người bên phải, thua uống 1 ly",
+  "Ôm thật chặt người bên phải / 2 ly",
+  "Vuốt má người bên trái bằng 2 tay trong 1 phút / 2 ly",
+  "Lồng tiếng bình luận pha tấn công ghi bàn thắng thứ 2 của Mbappe trong trận chung kết World Cup 2022 / 2 ly",
+  "Chịu 1 lượt sai bảo của người bên trái / 2 ly",
+  "Múa cố trang cho mọi người trong 2 phút / 3 ly",
+  "Selfie lên locket của người bên trái / 2 ly",
+  "Quay một video ngắn đăng lên nhật ký tiktok của người đối diện / 2 ly",
+  "Chu môi liên tục trong 1 vòng tới / 2 ly",
+  "Lên nốt cao bài 'Cơn mơ băng giá - Bằng Kiều' / 2 ly",
+  "Cắt móng tay/chân cho một người / 2 ly",
+  "Đá người bên phải / 2 ly",
+  "Xoa đầu người bên phải / 2 ly",
+  "Để người đối diện xoa đầu trong 1 phút / 2 ly",
+  "Đổi trong 1 vòng tới đổi hình phạt uống với người bên trái / 2 ly",
+  "Đổi áo với người bên phải trong 2 vòng tới / 2 ly",
+  "Nhìn mắt người đối diện trong 1 phút / 2 ly",
+  "[BINGO] Được miễn 1 lần uống",
+  "[BINGO] Được một lượt sai người đối diện",
+  "[BINGO] Được ép một người uống 1 ly, nhưng phải dùng chân đút cho",
+  "[BINGO] Mỗi người khen một câu",
+  "[BINGO] Được chọn một người để làm nô lệ trong 2 vòng tới",
+  "[BINGO] Được chọn một người để ôm trong 2 vòng tới",
+  "Squat và cõng một người 3 cái / 3 ly",
+  "Bò quanh phòng / 2 ly",
+  "Múa võ trong 30 giây / 2 ly",
+  "[BINGO] Người bên trái sẽ phải uống thay trong vòng tới",
+  "[BINGO] Người bên phải sẽ phải uống thay trong vòng tới",
+  "Một chút smooch cho người bên trái trong 30 giây / 3 ly",
+  "Cư xử như một con cá trong 30 giây / 2 ly"
+]

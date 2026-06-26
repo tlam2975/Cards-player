@@ -399,7 +399,7 @@
       gap: 20px;
       pointer-events: none;
       opacity: 0;
-      transition: opacity .4s ease;
+      transition: opacity .4s ease, background .5s ease;
       background: rgba(8, 15, 11, .55);
       backdrop-filter: blur(16px) saturate(.75);
       -webkit-backdrop-filter: blur(16px) saturate(.75);
@@ -577,6 +577,7 @@
 
     .corner {
       position: absolute;
+      z-index: 1;
       font-size: 11px;
       color: var(--gold);
       font-family: 'Cormorant Garamond', serif;
@@ -595,6 +596,8 @@
     }
 
     .divider {
+      position: relative;
+      z-index: 1;
       width: 50px;
       height: 1.5px;
       background: linear-gradient(90deg, transparent, var(--gold), transparent);
@@ -603,12 +606,168 @@
     }
 
     .card-text {
+      position: relative;
+      z-index: 1;
       font-family: 'Cormorant Garamond', serif;
       font-style: italic;
       font-size: 22px;
       line-height: 1.55;
       color: var(--ink);
       text-align: center;
+    }
+
+    /* ── BINGO bonus card: metallic shimmer text (dimmed) ── */
+    .card-text.is-bingo {
+      background: linear-gradient(100deg, #6e5310 0%, #a9842f 22%, #d8be6e 45%, #a9842f 68%, #6e5310 100%);
+      background-size: 250% 100%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent !important;
+      filter: drop-shadow(0 0 6px rgba(184, 150, 70, .32));
+      animation: bingo-shimmer 2.6s linear infinite;
+    }
+
+    @keyframes bingo-shimmer {
+      0% {
+        background-position: 0% 50%;
+      }
+
+      100% {
+        background-position: -250% 50%;
+      }
+    }
+
+    /* ── BINGO bonus card: special background, glow & rays ── */
+    .flip-front.is-bingo {
+      background: radial-gradient(circle at 50% 36%, #2c2208 0%, #181206 58%, #0d0a04 100%);
+      border-color: #f0d878;
+      box-shadow:
+        0 40px 100px rgba(0, 0, 0, .85),
+        inset 0 0 0 1px rgba(244, 226, 161, .22),
+        0 0 36px rgba(212, 175, 55, .32),
+        0 0 70px rgba(212, 175, 55, .14);
+      animation: bingo-glow-pulse 2.4s ease-in-out infinite;
+      overflow: hidden;
+    }
+
+    .flip-front.is-bingo::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background: repeating-conic-gradient(from 0deg, rgba(244, 226, 161, .07) 0deg 6deg, transparent 6deg 18deg);
+      animation: bingo-rays-spin 22s linear infinite;
+      pointer-events: none;
+    }
+
+    /* suppress loser skull watermark when a BINGO card overrides it */
+    .flip-front.is-bingo::after {
+      content: none;
+    }
+
+    .flip-front.is-bingo .divider {
+      background: linear-gradient(90deg, transparent, #f0d878, transparent);
+      box-shadow: 0 0 8px rgba(240, 216, 120, .45);
+    }
+
+    .flip-front.is-bingo .corner {
+      color: #f0d878;
+      text-shadow: 0 0 7px rgba(240, 216, 120, .6);
+    }
+
+    @keyframes bingo-glow-pulse {
+
+      0%,
+      100% {
+        box-shadow:
+          0 40px 100px rgba(0, 0, 0, .85),
+          inset 0 0 0 1px rgba(244, 226, 161, .22),
+          0 0 36px rgba(212, 175, 55, .32),
+          0 0 70px rgba(212, 175, 55, .14);
+      }
+
+      50% {
+        box-shadow:
+          0 40px 100px rgba(0, 0, 0, .85),
+          inset 0 0 0 1px rgba(244, 226, 161, .38),
+          0 0 54px rgba(212, 175, 55, .5),
+          0 0 100px rgba(212, 175, 55, .24);
+      }
+    }
+
+    @keyframes bingo-rays-spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* gentle breathing pulse on the whole card once revealed */
+    .card-spring.bingo-pulse {
+      animation: bingo-breathe 1.8s ease-in-out infinite;
+    }
+
+    @keyframes bingo-breathe {
+
+      0%,
+      100% {
+        transform: scale(1) translateY(0);
+      }
+
+      50% {
+        transform: scale(1.035) translateY(0);
+      }
+    }
+
+    /* warm golden wash across the whole screen during a BINGO reveal */
+    .overlay.bingo-mode {
+      background: radial-gradient(ellipse 80% 60% at 50% 45%, rgba(139, 105, 20, .22) 0%, rgba(8, 15, 11, .6) 65%, rgba(8, 15, 11, .7) 100%);
+    }
+
+    /* ══════════════════════════════════════
+       CELEBRATION LAYER (fireworks + ribbons)
+    ══════════════════════════════════════ */
+    .celebration-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 16;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .fw-particle {
+      position: absolute;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      box-shadow: 0 0 7px currentColor, 0 0 2px currentColor;
+      opacity: 1;
+      animation: fw-burst .95s cubic-bezier(.16, .84, .44, 1) forwards;
+    }
+
+    @keyframes fw-burst {
+      to {
+        transform: translate(var(--dx), var(--dy)) scale(.25);
+        opacity: 0;
+      }
+    }
+
+    .ribbon {
+      position: absolute;
+      top: -24px;
+      width: 7px;
+      height: 16px;
+      border-radius: 2px;
+      opacity: .92;
+      animation-name: ribbon-fall;
+      animation-timing-function: linear;
+      animation-fill-mode: forwards;
+    }
+
+    @keyframes ribbon-fall {
+      to {
+        transform: translate(var(--drift), 112vh) rotate(var(--spin));
+        opacity: .1;
+      }
     }
 
     /* ── action row (Drink / Play) ── */
@@ -1261,6 +1420,9 @@
   <!-- ── Felt table ── -->
   <div class="felt"></div>
 
+  <!-- ── Celebration layer (fireworks + ribbons) ── -->
+  <div class="celebration-layer" id="celebrationLayer"></div>
+
   <!-- ── Main stage ── -->
   <div class="stage">
     <p class="eyebrow">Draw a card</p>
@@ -1370,6 +1532,7 @@
     const shotsDown = document.getElementById('shotsDown');
     const shotsUp = document.getElementById('shotsUp');
     const resetRoundBtn = document.getElementById('resetRoundBtn');
+    const celebrationLayer = document.getElementById('celebrationLayer');
 
     /* ═══════════════════════════════════════════
        SETTINGS PERSISTENCE (5-min TTL)
@@ -1685,24 +1848,96 @@
     }
 
     /* ═══════════════════════════════════════════
+       CELEBRATION EFFECTS (BINGO cards)
+    ═══════════════════════════════════════════ */
+    const FW_COLORS = ['#f4e2a1', '#d4af37', '#e8c468', '#fff3d0', '#8b6914'];
+    const RIBBON_COLORS = ['#c9a84c', '#d4af37', '#e8c468', '#f6f0e4', '#8b6914'];
+
+    function isBingoCard(text) {
+      return /^\[bingo\]/i.test(text.trim());
+    }
+
+    function spawnFirework(cx, cy) {
+      const count = 14 + Math.floor(Math.random() * 6);
+      for (let i = 0; i < count; i++) {
+        const angle = (Math.PI * 2 * i) / count + Math.random() * 0.3;
+        const dist = 55 + Math.random() * 75;
+        const p = document.createElement('span');
+        p.className = 'fw-particle';
+        p.style.left = cx + 'px';
+        p.style.top = cy + 'px';
+        p.style.setProperty('--dx', Math.cos(angle) * dist + 'px');
+        p.style.setProperty('--dy', Math.sin(angle) * dist + 'px');
+        const color = FW_COLORS[Math.floor(Math.random() * FW_COLORS.length)];
+        p.style.background = color;
+        p.style.color = color;
+        celebrationLayer.appendChild(p);
+        setTimeout(() => p.remove(), 1000);
+      }
+    }
+
+    function spawnRibbons(count = 28) {
+      const w = window.innerWidth;
+      for (let i = 0; i < count; i++) {
+        const r = document.createElement('span');
+        r.className = 'ribbon';
+        const duration = 2.4 + Math.random() * 1.6;
+        const delay = Math.random() * 0.4;
+        r.style.left = (Math.random() * w) + 'px';
+        r.style.setProperty('--drift', (Math.random() * 160 - 80) + 'px');
+        r.style.setProperty('--spin', (Math.random() * 720 - 360) + 'deg');
+        r.style.animationDuration = duration + 's';
+        r.style.animationDelay = delay + 's';
+        r.style.background = RIBBON_COLORS[Math.floor(Math.random() * RIBBON_COLORS.length)];
+        celebrationLayer.appendChild(r);
+        setTimeout(() => r.remove(), (duration + delay) * 1000 + 100);
+      }
+    }
+
+    function triggerCelebration() {
+      const w = window.innerWidth, h = window.innerHeight;
+      spawnFirework(w * 0.28, h * 0.32);
+      setTimeout(() => spawnFirework(w * 0.72, h * 0.28), 220);
+      setTimeout(() => spawnFirework(w * 0.5, h * 0.42), 420);
+      spawnRibbons();
+    }
+
+    function clearCelebration() {
+      celebrationLayer.innerHTML = '';
+    }
+
+    /* ═══════════════════════════════════════════
        OVERLAY
     ═══════════════════════════════════════════ */
     function showResult(text) {
       const p = players[currentPlayerIdx];
       const isLoser = p.shots >= maxShots;
+      const isBingo = isBingoCard(text);
 
       cardText.textContent = text;
+      cardText.classList.toggle('is-bingo', isBingo);
       turnName.textContent = `${p.name}'s turn`;
       renderTurnDots();
 
       flipFront.classList.toggle('is-loser', isLoser);
+      flipFront.classList.toggle('is-bingo', isBingo);
+      overlay.classList.toggle('bingo-mode', isBingo);
+      cardSpring.classList.remove('bingo-pulse');
       flipInner.classList.remove('flipped');
       overlay.classList.add('show');
       setTimeout(() => flipInner.classList.add('flipped'), 480);
+
+      if (isBingo) {
+        setTimeout(triggerCelebration, 1150);            // fire once the flip reveal settles
+        setTimeout(() => cardSpring.classList.add('bingo-pulse'), 550); // start breathing after spring-in
+      }
     }
 
     function dismissOverlay() {
+      clearCelebration();
       cardSpring.classList.add('exiting');
+      cardSpring.classList.remove('bingo-pulse');
+      overlay.classList.remove('bingo-mode');
       setTimeout(() => {
         overlay.classList.remove('show');
         setTimeout(() => {
