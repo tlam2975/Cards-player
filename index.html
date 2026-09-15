@@ -5,8 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Card Draw</title>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,600;1,400;1,600&family=Outfit:wght@300;400;500&display=swap"
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300..900;1,300..900&display=swap"
     rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
     crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -34,6 +33,65 @@
       /* warn accent */
       --radius: 9px;
       /* tighter, more geometric than the original 14px */
+      --drawer-bg: linear-gradient(160deg, #1c0a10 0%, #0f0608 100%);
+      --spotlight: rgba(232, 201, 136, .16);
+      --table-shadow: rgba(12, 5, 7, .74);
+      --card-back-glow: rgba(185, 144, 90, .18);
+      --theme-button-bg: rgba(185, 144, 90, .08);
+    }
+
+    body[data-theme="neon"] {
+      --felt: #080b16;
+      --felt-hi: #151a38;
+      --cream: #f6f7ff;
+      --ink: #16182d;
+      --navy: #151042;
+      --gold: #51e5d4;
+      --gold-dim: rgba(81, 229, 212, .28);
+      --gold-bright: #ffcf5f;
+      --crimson: #ff4f9a;
+      --amber: #ffcf5f;
+      --drawer-bg: linear-gradient(155deg, #10142c 0%, #070912 100%);
+      --spotlight: rgba(81, 229, 212, .2);
+      --table-shadow: rgba(2, 3, 10, .82);
+      --card-back-glow: rgba(81, 229, 212, .2);
+      --theme-button-bg: rgba(81, 229, 212, .08);
+    }
+
+    body[data-theme="lantern"] {
+      --felt: #13201d;
+      --felt-hi: #27392f;
+      --cream: #fff2da;
+      --ink: #23180e;
+      --navy: #5b1322;
+      --gold: #e1a95f;
+      --gold-dim: rgba(225, 169, 95, .3);
+      --gold-bright: #ffd084;
+      --crimson: #d2453d;
+      --amber: #e8a33b;
+      --drawer-bg: linear-gradient(155deg, #1b251d 0%, #110b09 100%);
+      --spotlight: rgba(255, 162, 83, .18);
+      --table-shadow: rgba(10, 8, 5, .72);
+      --card-back-glow: rgba(225, 169, 95, .18);
+      --theme-button-bg: rgba(225, 169, 95, .08);
+    }
+
+    body[data-theme="bordeaux"] {
+      --felt: #3a0b18;
+      --felt-hi: #5a1428;
+      --cream: #f6e9dd;
+      --ink: #251017;
+      --navy: #250713;
+      --gold: #d2a06f;
+      --gold-dim: rgba(210, 160, 111, .32);
+      --gold-bright: #f4cf9b;
+      --crimson: #a71930;
+      --amber: #c77d4b;
+      --drawer-bg: linear-gradient(155deg, #2a0712 0%, #130308 100%);
+      --spotlight: rgba(167, 25, 48, .28);
+      --table-shadow: rgba(20, 2, 8, .78);
+      --card-back-glow: rgba(210, 160, 111, .2);
+      --theme-button-bg: rgba(167, 25, 48, .16);
     }
 
     *,
@@ -50,7 +108,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      font-family: 'Outfit', sans-serif;
+      font-family: 'Montserrat', sans-serif;
       overflow: hidden;
       user-select: none;
     }
@@ -59,7 +117,9 @@
     .felt {
       position: fixed;
       inset: 0;
-      background: radial-gradient(ellipse 90% 70% at 50% 55%, var(--felt-hi) 0%, var(--felt) 50%, #0c0507 100%);
+      background:
+        radial-gradient(circle at 50% 42%, var(--spotlight) 0%, transparent 28%),
+        radial-gradient(ellipse 90% 70% at 50% 55%, var(--felt-hi) 0%, var(--felt) 50%, #0c0507 100%);
       z-index: 0;
     }
 
@@ -67,7 +127,7 @@
       content: '';
       position: absolute;
       inset: 0;
-      background: radial-gradient(ellipse 100% 100% at 50% 50%, transparent 36%, rgba(0, 0, 0, .64) 100%);
+      background: radial-gradient(ellipse 100% 100% at 50% 50%, transparent 36%, var(--table-shadow) 100%);
     }
 
     .felt::after {
@@ -133,6 +193,26 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      transform-style: preserve-3d;
+    }
+
+    .deck-mood {
+      margin-top: -26px;
+      margin-bottom: 28px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 24px;
+      padding: 5px 10px;
+      border: 1px solid var(--gold-dim);
+      border-radius: 999px;
+      color: rgba(243, 234, 216, .48);
+      background: rgba(12, 5, 7, .28);
+      font-size: 9.5px;
+      font-weight: 600;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      backdrop-filter: blur(8px);
     }
 
     .eyebrow {
@@ -159,6 +239,21 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      perspective: 900px;
+      transform-style: preserve-3d;
+      animation: stack-float 5.8s ease-in-out infinite;
+    }
+
+    @keyframes stack-float {
+
+      0%,
+      100% {
+        transform: rotateX(0deg) rotateY(0deg) translateY(0);
+      }
+
+      50% {
+        transform: rotateX(2deg) rotateY(-2.5deg) translateY(-7px);
+      }
     }
 
     .sunburst-medallion {
@@ -261,7 +356,7 @@
       border-radius: var(--radius);
       background: var(--navy);
       border: 2.5px solid var(--gold);
-      box-shadow: 0 6px 28px rgba(0, 0, 0, .6), 0 2px 4px rgba(0, 0, 0, .4), inset 0 0 0 1px rgba(185, 144, 90, .18);
+      box-shadow: 0 6px 28px rgba(0, 0, 0, .6), 0 2px 4px rgba(0, 0, 0, .4), inset 0 0 0 1px var(--card-back-glow);
       position: relative;
       overflow: hidden;
     }
@@ -360,7 +455,7 @@
       padding: 15px 62px;
       border: none;
       border-radius: 100px;
-      font-family: 'Outfit', sans-serif;
+      font-family: 'Montserrat', sans-serif;
       font-size: 13px;
       font-weight: 500;
       letter-spacing: .18em;
@@ -525,8 +620,9 @@
     }
 
     .turn-name {
-      font-family: 'Cormorant Garamond', serif;
+      font-family: 'Montserrat', sans-serif;
       font-style: italic;
+      font-weight: 500;
       font-size: 18px;
       color: rgba(243, 234, 216, .85);
       letter-spacing: .06em;
@@ -677,7 +773,7 @@
       z-index: 1;
       font-size: 11px;
       color: var(--gold);
-      font-family: 'Cormorant Garamond', serif;
+      font-family: 'Montserrat', sans-serif;
       font-weight: 600;
     }
 
@@ -705,9 +801,10 @@
     .card-text {
       position: relative;
       z-index: 1;
-      font-family: 'Cormorant Garamond', serif;
+      font-family: 'Montserrat', sans-serif;
       font-style: italic;
-      font-size: 22px;
+      font-weight: 650;
+      font-size: 21px;
       line-height: 1.55;
       color: var(--ink);
       text-align: center;
@@ -715,9 +812,9 @@
 
     /* ── BINGO bonus card: metallic shimmer text, marquee display face ── */
     .card-text.is-bingo {
-      font-family: 'Cinzel Decorative', serif;
+      font-family: 'Montserrat', sans-serif;
       font-style: normal;
-      font-weight: 700;
+      font-weight: 800;
       font-size: 17px;
       letter-spacing: .03em;
       line-height: 1.7;
@@ -875,8 +972,12 @@
 
     /* ── action row (Drink / Play) ── */
     .action-row {
-      display: flex;
-      gap: 12px;
+      width: min(540px, 90vw);
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      justify-items: center;
+      align-items: center;
+      gap: 14px 24px;
       opacity: 0;
       transform: translateY(18px);
       transition: opacity .45s .3s ease, transform .45s .3s ease;
@@ -888,9 +989,14 @@
     }
 
     .act-btn {
+      width: 100%;
+      max-width: 236px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       padding: 14px 38px;
       border-radius: 100px;
-      font-family: 'Outfit', sans-serif;
+      font-family: 'Montserrat', sans-serif;
       font-size: 12px;
       font-weight: 500;
       letter-spacing: .2em;
@@ -958,7 +1064,7 @@
     }
 
     .deck-inner h2 {
-      font-family: 'Cinzel Decorative', serif;
+      font-family: 'Montserrat', sans-serif;
       font-weight: 700;
       font-size: 22px;
       letter-spacing: .05em;
@@ -993,7 +1099,7 @@
       border-radius: 100px;
       background: transparent;
       color: var(--gold);
-      font-family: 'Outfit', sans-serif;
+      font-family: 'Montserrat', sans-serif;
       font-size: 12px;
       letter-spacing: .18em;
       text-transform: uppercase;
@@ -1221,7 +1327,7 @@
       width: 310px;
       max-width: 90vw;
       z-index: 70;
-      background: linear-gradient(160deg, #1c0a10 0%, #0f0608 100%);
+      background: var(--drawer-bg);
       border-right: 1px solid rgba(185, 144, 90, .16);
       box-shadow: 6px 0 48px rgba(0, 0, 0, .55);
       transform: translateX(-100%);
@@ -1254,8 +1360,8 @@
     }
 
     .drawer-header h3 {
-      font-family: 'Cinzel Decorative', serif;
-      font-weight: 700;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800;
       font-size: 17px;
       letter-spacing: .08em;
       text-transform: uppercase;
@@ -1321,6 +1427,143 @@
       text-transform: none;
       letter-spacing: .08em;
       margin-left: 6px;
+    }
+
+    .drawer-section {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .segmented,
+    .pack-grid,
+    .theme-grid {
+      display: grid;
+      gap: 7px;
+    }
+
+    .segmented {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      padding: 4px;
+      border: 1px solid rgba(255, 255, 255, .08);
+      border-radius: 13px;
+      background: rgba(255, 255, 255, .04);
+    }
+
+    .segmented.two {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .seg-btn,
+    .pack-btn,
+    .theme-btn {
+      min-height: 34px;
+      border: 1px solid transparent;
+      border-radius: 9px;
+      background: transparent;
+      color: rgba(243, 234, 216, .48);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: transform .15s, background .2s, border-color .2s, color .2s, box-shadow .2s;
+    }
+
+    .seg-btn:hover,
+    .pack-btn:hover,
+    .theme-btn:hover {
+      color: rgba(243, 234, 216, .82);
+      background: rgba(255, 255, 255, .05);
+    }
+
+    .seg-btn.active,
+    .pack-btn.active,
+    .theme-btn.active {
+      color: var(--gold-bright);
+      border-color: var(--gold-dim);
+      background: var(--theme-button-bg);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .035), 0 6px 18px rgba(0, 0, 0, .18);
+    }
+
+    .pack-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .pack-btn {
+      text-align: left;
+      padding: 0 11px;
+    }
+
+    .theme-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .theme-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      min-height: 58px;
+      letter-spacing: .07em;
+    }
+
+    .theme-swatch {
+      width: 34px;
+      height: 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, .18);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, .25);
+    }
+
+    .theme-swatch.velvet {
+      background: linear-gradient(90deg, #2a0f15, #b9905a, #1a1238);
+    }
+
+    .theme-swatch.neon {
+      background: linear-gradient(90deg, #080b16, #51e5d4, #ff4f9a);
+    }
+
+    .theme-swatch.lantern {
+      background: linear-gradient(90deg, #13201d, #e1a95f, #5b1322);
+    }
+
+    .theme-swatch.bordeaux {
+      background: linear-gradient(90deg, #3a0b18, #a71930, #d2a06f);
+    }
+
+    .custom-card-box {
+      width: 100%;
+      min-height: 108px;
+      resize: vertical;
+      border: 1px solid rgba(255, 255, 255, .09);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, .045);
+      color: rgba(243, 234, 216, .82);
+      caret-color: var(--gold);
+      padding: 12px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 12px;
+      line-height: 1.55;
+      outline: none;
+    }
+
+    .custom-card-box:focus {
+      border-color: var(--gold-dim);
+      box-shadow: 0 0 0 3px rgba(185, 144, 90, .08);
+    }
+
+    .custom-card-box::placeholder {
+      color: rgba(243, 234, 216, .24);
+    }
+
+    .deck-note {
+      min-height: 16px;
+      color: rgba(243, 234, 216, .34);
+      font-size: 10.5px;
+      line-height: 1.45;
     }
 
     /* ── number control ── */
@@ -1412,7 +1655,7 @@
       border: none;
       outline: none;
       color: rgba(243, 234, 216, .85);
-      font-family: 'Outfit', sans-serif;
+      font-family: 'Montserrat', sans-serif;
       font-size: 14px;
       min-width: 0;
     }
@@ -1455,7 +1698,7 @@
       border-radius: 10px;
       background: transparent;
       color: rgba(185, 144, 90, .45);
-      font-family: 'Outfit', sans-serif;
+      font-family: 'Montserrat', sans-serif;
       font-size: 11.5px;
       letter-spacing: .12em;
       text-transform: uppercase;
@@ -1477,7 +1720,7 @@
       border-radius: 10px;
       background: transparent;
       color: rgba(243, 234, 216, .32);
-      font-family: 'Outfit', sans-serif;
+      font-family: 'Montserrat', sans-serif;
       font-size: 11px;
       letter-spacing: .15em;
       text-transform: uppercase;
@@ -1499,13 +1742,11 @@
        ROUND COUNTDOWN FEATURE
     ══════════════════════════════════════ */
 
-    /* cd-section: absolute bottom of overlay */
     .cd-section {
-      position: absolute;
-      bottom: 28px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: min(340px, 88vw);
+      position: static;
+      grid-column: 1 / -1;
+      order: -1;
+      width: min(420px, 100%);
       display: flex;
       flex-direction: column;
       gap: 8px;
@@ -1531,7 +1772,7 @@
       background: rgba(10, 4, 7, .58);
       backdrop-filter: blur(10px);
       color: rgba(185, 144, 90, .48);
-      font-family: 'Outfit', sans-serif;
+      font-family: 'Montserrat', sans-serif;
       font-size: 10.5px;
       letter-spacing: .16em;
       text-transform: uppercase;
@@ -1583,8 +1824,9 @@
       border-bottom: 1px solid rgba(185, 144, 90, .2);
       outline: none;
       color: rgba(243, 234, 216, .85);
-      font-family: 'Cormorant Garamond', serif;
+      font-family: 'Montserrat', sans-serif;
       font-style: italic;
+      font-weight: 500;
       font-size: 15px;
       line-height: 1.5;
       resize: none;
@@ -1647,7 +1889,7 @@
       border-radius: 100px;
       background: transparent;
       color: var(--gold);
-      font-family: 'Outfit', sans-serif;
+      font-family: 'Montserrat', sans-serif;
       font-size: 10px;
       letter-spacing: .16em;
       text-transform: uppercase;
@@ -1762,6 +2004,29 @@
       line-height: 1;
     }
 
+    .cd-remove-btn {
+      width: 22px;
+      height: 22px;
+      border: 1px solid rgba(243, 234, 216, .1);
+      border-radius: 50%;
+      background: rgba(0, 0, 0, .18);
+      color: rgba(243, 234, 216, .38);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      flex-shrink: 0;
+      transition: background .2s, border-color .2s, color .2s, transform .15s;
+    }
+
+    .cd-remove-btn:hover {
+      background: rgba(194, 59, 59, .14);
+      border-color: rgba(194, 59, 59, .42);
+      color: rgba(255, 180, 180, .9);
+      transform: scale(1.06);
+    }
+
     .cd-chip.cd-urgent .cd-chip-turns {
       color: #ff5f5f;
     }
@@ -1836,7 +2101,7 @@
       font-size: 13.5px;
       color: rgba(243, 234, 216, .65);
       line-height: 1.45;
-      font-family: 'Cormorant Garamond', serif;
+      font-family: 'Montserrat', sans-serif;
       font-style: italic;
     }
 
@@ -1844,14 +2109,58 @@
       font-size: 10.5px;
       color: rgba(185, 144, 90, .55);
       font-style: normal;
-      font-family: 'Outfit', sans-serif;
+      font-family: 'Montserrat', sans-serif;
       display: block;
       margin-top: 3px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+
+      *,
+      *::before,
+      *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .drawer {
+        width: min(340px, 94vw);
+      }
+
+      .theme-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .pack-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .deck-mood {
+        margin-top: -18px;
+        margin-bottom: 20px;
+      }
+
+      .card-spring {
+        width: min(285px, 82vw);
+        height: min(395px, 114vw);
+      }
+
+      .action-row {
+        gap: 10px;
+      }
+
+      .act-btn {
+        padding: 13px 18px;
+      }
     }
   </style>
 </head>
 
-<body>
+<body data-theme="velvet">
 
   <!-- ── Deco frame (decorative only — pointer-events:none) ── -->
   <div class="deco-frame" aria-hidden="true">
@@ -1862,7 +2171,7 @@
   </div>
 
   <!-- ── Burger button ── -->
-  <button class="burger-btn" id="burgerBtn" aria-label="Open game settings">
+  <button class="burger-btn" id="burgerBtn" aria-label="Open game settings" data-i18n-aria="openSettings">
     <i class="fa-solid fa-bars"></i>
   </button>
 
@@ -1873,8 +2182,8 @@
   <div class="drawer" id="drawer" role="dialog" aria-label="Game settings">
     <div class="drawer-header">
       <div class="drawer-header-top">
-        <h3>Game Setup</h3>
-        <button class="drawer-close" id="drawerClose" aria-label="Close settings">
+        <h3 data-i18n="gameSetup">Game Setup</h3>
+        <button class="drawer-close" id="drawerClose" aria-label="Close settings" data-i18n-aria="closeSettings">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
@@ -1883,9 +2192,53 @@
 
     <div class="drawer-body">
 
+      <div class="drawer-section">
+        <p class="section-title" data-i18n="language">Language</p>
+        <div class="segmented two" id="languageControl">
+          <button class="seg-btn" data-lang="vi">VI</button>
+          <button class="seg-btn" data-lang="en">EN</button>
+        </div>
+      </div>
+
+      <div class="drawer-section">
+        <p class="section-title" data-i18n="theme">Theme</p>
+        <div class="theme-grid" id="themeGrid">
+          <button class="theme-btn" data-theme-choice="velvet"><span class="theme-swatch velvet"></span><span
+              data-i18n="themeVelvet">Velvet</span></button>
+          <button class="theme-btn" data-theme-choice="neon"><span class="theme-swatch neon"></span><span
+              data-i18n="themeNeon">Neon</span></button>
+          <button class="theme-btn" data-theme-choice="lantern"><span class="theme-swatch lantern"></span><span
+              data-i18n="themeLantern">Lantern</span></button>
+          <button class="theme-btn" data-theme-choice="bordeaux"><span class="theme-swatch bordeaux"></span><span
+              data-i18n="themeBordeaux">Bordeaux</span></button>
+        </div>
+      </div>
+
+      <div class="drawer-section">
+        <p class="section-title" data-i18n="intensity">Intensity</p>
+        <div class="segmented" id="intensityControl">
+          <button class="seg-btn" data-intensity="chill" data-i18n="chill">Chill</button>
+          <button class="seg-btn" data-intensity="normal" data-i18n="normal">Normal</button>
+          <button class="seg-btn" data-intensity="chaos" data-i18n="chaos">Chaos</button>
+        </div>
+      </div>
+
+      <div class="drawer-section">
+        <p class="section-title" data-i18n="packs">Card Packs</p>
+        <div class="pack-grid" id="packGrid">
+          <button class="pack-btn" data-pack="funny" data-i18n="packFunny">Funny</button>
+          <button class="pack-btn" data-pack="physical" data-i18n="packPhysical">Physical</button>
+          <button class="pack-btn" data-pack="social" data-i18n="packSocial">Social</button>
+          <button class="pack-btn" data-pack="deep" data-i18n="packDeep">Deep</button>
+          <button class="pack-btn" data-pack="spicy" data-i18n="packSpicy">Spicy</button>
+          <button class="pack-btn" data-pack="bingo" data-i18n="packBingo">BINGO</button>
+        </div>
+        <p class="deck-note" id="deckNote"></p>
+      </div>
+
       <!-- Max shots -->
-      <div>
-        <p class="section-title">Max Shots per Player</p>
+      <div class="drawer-section">
+        <p class="section-title" data-i18n="maxShots">Max Shots per Player</p>
         <div class="number-ctrl">
           <button class="num-btn" id="shotsDown" aria-label="Decrease">−</button>
           <span class="num-val" id="maxShotsVal">3</span>
@@ -1893,12 +2246,20 @@
         </div>
       </div>
 
+      <div class="drawer-section">
+        <p class="section-title" data-i18n="customCards">Custom Cards</p>
+        <textarea class="custom-card-box" id="customCardsInput" rows="5" spellcheck="false"></textarea>
+        <p class="deck-note" id="customCardsNote"></p>
+      </div>
+
       <!-- Players -->
-      <div>
-        <p class="section-title">Players <span>drag to reorder</span></p>
+      <div class="drawer-section">
+        <p class="section-title"><span data-i18n="players">Players</span> <span data-i18n="dragHint">drag to
+            reorder</span></p>
         <div class="player-list" id="playerList"></div>
         <button class="add-player-btn" id="addPlayerBtn">
-          <i class="fa-solid fa-plus" style="margin-right:5px;font-size:10px"></i>Add Player
+          <i class="fa-solid fa-plus" style="margin-right:5px;font-size:10px"></i><span data-i18n="addPlayer">Add
+            Player</span>
         </button>
       </div>
 
@@ -1906,7 +2267,7 @@
 
     <div class="drawer-footer">
       <button class="reset-round-btn" id="resetRoundBtn">
-        <i class="fa-solid fa-rotate-left" style="font-size:10px"></i>Reset Round
+        <i class="fa-solid fa-rotate-left" style="font-size:10px"></i><span data-i18n="resetRound">Reset Round</span>
       </button>
     </div>
   </div>
@@ -1919,7 +2280,8 @@
 
   <!-- ── Main stage ── -->
   <div class="stage">
-    <p class="eyebrow">Draw a card</p>
+    <p class="eyebrow" data-i18n="eyebrow">Draw a card</p>
+    <p class="deck-mood" id="deckMood"></p>
 
     <div class="stack-stage">
       <div class="sunburst-medallion" aria-hidden="true"></div>
@@ -1928,7 +2290,7 @@
 
     <div class="controls">
       <div class="ctrl-row">
-        <span class="toggle-label">No repeats</span>
+        <span class="toggle-label" data-i18n="noRepeats">No repeats</span>
         <div class="toggle" id="noRepeatToggle" role="switch" aria-checked="false">
           <span class="thumb"></span>
         </div>
@@ -1940,7 +2302,7 @@
     <div class="player-strip" id="playerStrip"></div>
 
     <div class="countdown-list" id="countdownList"></div>
-    <button class="play-btn" id="playBtn">Play</button>
+    <button class="play-btn" id="playBtn" data-i18n="play">Play</button>
   </div>
 
   <!-- ── Reveal overlay ── -->
@@ -1966,27 +2328,29 @@
 
     <div class="action-row">
       <button class="act-btn drink-btn" id="drinkBtn">
-        <i class="fa-solid fa-wine-glass" style="margin-right:6px;font-size:10px"></i>Drink
+        <i class="fa-solid fa-wine-glass" style="margin-right:6px;font-size:10px"></i><span
+          data-i18n="drink">Drink</span>
       </button>
-      <button class="act-btn play-btn-ov" id="playOverlayBtn">Play</button>
+      <button class="act-btn play-btn-ov" id="playOverlayBtn" data-i18n="play">Play</button>
 
       <!-- ── Round countdown section (bottom-anchored) ── -->
       <div class="cd-section" id="cdSection">
         <div class="cd-form" id="cdForm">
-          <textarea class="cd-text" id="cdText" rows="2" maxlength="200"
+          <textarea class="cd-text" id="cdText" rows="2" maxlength="200" data-i18n-placeholder="countdownPlaceholder"
             placeholder="Nội dung thử thách theo vòng..."></textarea>
           <div class="cd-form-row">
-            <span class="cd-rounds-label">Số vòng</span>
+            <span class="cd-rounds-label" data-i18n="rounds">Số vòng</span>
             <div class="cd-ctrl">
               <button class="num-btn" id="cdDown">−</button>
               <span class="num-val" id="cdVal">1</span>
               <button class="num-btn" id="cdUp">+</button>
             </div>
-            <button class="cd-activate-btn" id="cdActivate">Kích hoạt</button>
+            <button class="cd-activate-btn" id="cdActivate" data-i18n="activate">Kích hoạt</button>
           </div>
         </div>
         <button class="cd-toggle" id="cdToggle">
-          <i class="fa-solid fa-hourglass-half" style="font-size:9px"></i>&ensp;Đặt thử thách theo vòng
+          <i class="fa-solid fa-hourglass-half" style="font-size:9px"></i><span data-i18n="setCountdown">Đặt thử thách
+            theo vòng</span>
         </button>
       </div>
 
@@ -1995,10 +2359,10 @@
     <!-- ── Deck exhausted screen ── -->
     <div class="deck-screen" id="deckScreen">
       <div class="deck-inner">
-        <h2>Deck Complete</h2>
+        <h2 data-i18n="deckComplete">Deck Complete</h2>
         <div class="chevron-divider"></div>
-        <p>Every card has been drawn</p>
-        <button class="reshuffle-btn" id="reshuffleBtn">Reshuffle &amp; Continue</button>
+        <p data-i18n="deckCompleteBody">Every card has been drawn</p>
+        <button class="reshuffle-btn" id="reshuffleBtn" data-i18n="reshuffle">Reshuffle &amp; Continue</button>
       </div>
     </div>
 
@@ -2013,10 +2377,17 @@
       const SETTINGS_KEY = 'cardDraw_v2';
       const SETTINGS_TTL = 5 * 60 * 1000; // 5 minutes
 
+      let sourcePrompts = [];
+      let translatedPrompts = [];
       let prompts = [];
       let remaining = [];
       let noRepeat = false;
       let busy = false;
+      let language = 'vi';
+      let theme = 'velvet';
+      let intensity = 'normal';
+      let customCards = [];
+      let enabledPacks = { funny: true, physical: true, social: true, deep: true, spicy: true, bingo: true };
 
       let players = [
         { name: 'Player 1', shots: 0 },
@@ -2030,6 +2401,46 @@
       let cdIdCounter = 0;
       let cdRounds = 1;
       let cdActivated = false;
+
+      const I18N = {
+        vi: {
+          gameSetup: 'Thiết lập', language: 'Ngôn ngữ', theme: 'Giao diện', themeVelvet: 'Velvet', themeNeon: 'Neon', themeLantern: 'Lantern', themeBordeaux: 'Bordeaux',
+          intensity: 'Độ cháy', chill: 'Nhẹ', normal: 'Vừa', chaos: 'Loạn', packs: 'Bộ bài', packFunny: 'Hài', packPhysical: 'Vận động', packSocial: 'Xã hội', packDeep: 'Tâm sự', packSpicy: 'Căng', packBingo: 'BINGO',
+          maxShots: 'Số ly tối đa', customCards: 'Bài tự thêm', players: 'Người chơi', dragHint: 'kéo để đổi thứ tự', addPlayer: 'Thêm người', resetRound: 'Reset vòng',
+          eyebrow: 'Rút một lá', noRepeats: 'Không lặp', play: 'Play', drink: 'Uống', rounds: 'Số vòng', activate: 'Kích hoạt', setCountdown: 'Đặt thử thách theo vòng', activated: 'Đã kích hoạt',
+          deckComplete: 'Hết bộ bài', deckCompleteBody: 'Tất cả lá trong bộ đang bật đã được rút', reshuffle: 'Xào lại & tiếp tục', countdownPlaceholder: 'Nội dung thử thách theo vòng...',
+          openSettings: 'Mở thiết lập', closeSettings: 'Đóng thiết lập', remaining: (a, b) => `${a} / ${b} lá còn lại`, turn: name => `Lượt của ${name}`,
+          deckNote: (shown, total) => `${shown}/${total} lá đang bật`, customNote: count => count ? `${count} lá tự thêm trong ván này` : 'Mỗi dòng là một lá mới cho riêng ván này',
+          mood: (themeName, count) => `${themeName} · ${count} lá`, toastTitle: 'Thử thách kết thúc!', removeTimer: 'Xoá timer'
+        },
+        en: {
+          gameSetup: 'Game Setup', language: 'Language', theme: 'Theme', themeVelvet: 'Velvet', themeNeon: 'Neon', themeLantern: 'Lantern', themeBordeaux: 'Bordeaux',
+          intensity: 'Intensity', chill: 'Chill', normal: 'Normal', chaos: 'Chaos', packs: 'Card Packs', packFunny: 'Funny', packPhysical: 'Physical', packSocial: 'Social', packDeep: 'Deep', packSpicy: 'Intimate', packBingo: 'BINGO',
+          maxShots: 'Max Shots', customCards: 'Custom Cards', players: 'Players', dragHint: 'drag to reorder', addPlayer: 'Add Player', resetRound: 'Reset Round',
+          eyebrow: 'Draw a card', noRepeats: 'No repeats', play: 'Play', drink: 'Drink', rounds: 'Rounds', activate: 'Activate', setCountdown: 'Set round challenge', activated: 'Activated',
+          deckComplete: 'Deck Complete', deckCompleteBody: 'Every enabled card has been drawn', reshuffle: 'Reshuffle & Continue', countdownPlaceholder: 'Round challenge text...',
+          openSettings: 'Open game settings', closeSettings: 'Close settings', remaining: (a, b) => `${a} of ${b} remaining`, turn: name => `${name}'s turn`,
+          deckNote: (shown, total) => `${shown}/${total} cards enabled`, customNote: count => count ? `${count} custom cards in this session` : 'One new card per line for this session',
+          mood: (themeName, count) => `${themeName} · ${count} cards`, toastTitle: 'Challenge ended!', removeTimer: 'Remove timer'
+        }
+      };
+
+      const THEME_NAMES = {
+        vi: { velvet: 'Velvet', neon: 'Neon', lantern: 'Lantern', bordeaux: 'Bordeaux' },
+        en: { velvet: 'Velvet', neon: 'Neon', lantern: 'Lantern', bordeaux: 'Bordeaux' }
+      };
+
+      const PACK_RULES = {
+        bingo: [/^\[bingo\]/i],
+        physical: [/jumping|squat|chống đẩy|xoay|cõng|bế|quỳ|bò|trồng cây|nhảy|đứng|nằm|rửa|gội|đánh răng|chạm tay|vật tay|pose|múa|massage|dẫm|đấm|gãi/i],
+        deep: [/bí mật|người yêu cũ|toxic|redflag|ghét|nuối tiếc|overthinking|xấu hổ|quê|sợ ai đó|buồn|kỷ niệm|thoải mái|phát hiện|thay đổi|cảm thấy|vì sao|thật hoặc uống|chia sẻ/i],
+        spicy: [/hôn|thơm|ôm|âu yếm|ve vuốt|cắn|mút|tai|má|môi|ngồi vào lòng|thả thính|cụng má|cụng trán|nắm tay|nắm chân|gác chân|vuốt má|dùng 2 ngón tay đi bộ|thì thầm vào tai.*muốn làm/i],
+        social: [/người bên|người đối|mọi người|tất cả|nhóm|messenger|instagram|story|locket|note|album|selfie|ảnh|hỏi|khen|kể|nói|chỉ ra|đồng ý/i],
+        funny: [/skrrrt|gâu gâu|siuuu|hiphop|đỉnh chưa|vãi|đùa|chu môi|nháy mắt|người mẫu|cố trang|đồng khởi|ếch|bị điên|moah/i]
+      };
+
+      const INTENSITY_LIMITS = { chill: 1, normal: 2, chaos: 3 };
+
 
       /* ═══════════════════════════════════════════
          DOM REFS
@@ -2070,6 +2481,14 @@
       const cdValEl = document.getElementById('cdVal');
       const cdActivateBtn = document.getElementById('cdActivate');
       const toastContainerEl = document.getElementById('toastContainer');
+      const languageControl = document.getElementById('languageControl');
+      const themeGrid = document.getElementById('themeGrid');
+      const intensityControl = document.getElementById('intensityControl');
+      const packGrid = document.getElementById('packGrid');
+      const deckNote = document.getElementById('deckNote');
+      const deckMood = document.getElementById('deckMood');
+      const customCardsInput = document.getElementById('customCardsInput');
+      const customCardsNote = document.getElementById('customCardsNote');
 
       /* ═══════════════════════════════════════════
          SETTINGS PERSISTENCE (5-min TTL)
@@ -2079,6 +2498,12 @@
           localStorage.setItem(SETTINGS_KEY, JSON.stringify({
             players: players.map(p => ({ name: p.name })),
             maxShots,
+            language,
+            theme,
+            intensity,
+            enabledPacks,
+            customCards,
+            noRepeat,
             savedAt: Date.now(),
           }));
         } catch { }
@@ -2088,7 +2513,8 @@
         try {
           const raw = localStorage.getItem(SETTINGS_KEY);
           if (!raw) return;
-          const { players: sp, maxShots: sm, savedAt } = JSON.parse(raw);
+          const saved = JSON.parse(raw);
+          const { players: sp, maxShots: sm, savedAt } = saved;
           if (Date.now() - savedAt > SETTINGS_TTL) {
             localStorage.removeItem(SETTINGS_KEY);
             return;
@@ -2097,8 +2523,170 @@
             players = sp.map(p => ({ name: p.name || 'Player', shots: 0 }));
           }
           if (typeof sm === 'number' && sm >= 1 && sm <= 10) maxShots = sm;
+          if (['vi', 'en'].includes(saved.language)) language = saved.language;
+          if (['velvet', 'neon', 'lantern', 'bordeaux'].includes(saved.theme)) theme = saved.theme;
+          if (['chill', 'normal', 'chaos'].includes(saved.intensity)) intensity = saved.intensity;
+          if (saved.enabledPacks && typeof saved.enabledPacks === 'object') {
+            enabledPacks = { ...enabledPacks, ...saved.enabledPacks };
+          }
+          if (Array.isArray(saved.customCards)) customCards = saved.customCards.filter(Boolean);
+          if (typeof saved.noRepeat === 'boolean') noRepeat = saved.noRepeat;
         } catch { }
       }
+
+      function t(key) {
+        return I18N[language][key] || I18N.en[key] || key;
+      }
+
+      function setIconLabel(button, iconClass, label) {
+        button.innerHTML = `<i class="${iconClass}" style="font-size:9px"></i><span>${escHtml(label)}</span>`;
+      }
+
+      function syncCopy() {
+        document.documentElement.lang = language;
+        document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { el.placeholder = t(el.dataset.i18nPlaceholder); });
+        document.querySelectorAll('[data-i18n-aria]').forEach(el => { el.setAttribute('aria-label', t(el.dataset.i18nAria)); });
+        languageControl.querySelectorAll('[data-lang]').forEach(btn => btn.classList.toggle('active', btn.dataset.lang === language));
+        themeGrid.querySelectorAll('[data-theme-choice]').forEach(btn => btn.classList.toggle('active', btn.dataset.themeChoice === theme));
+        intensityControl.querySelectorAll('[data-intensity]').forEach(btn => btn.classList.toggle('active', btn.dataset.intensity === intensity));
+        packGrid.querySelectorAll('[data-pack]').forEach(btn => btn.classList.toggle('active', !!enabledPacks[btn.dataset.pack]));
+        setIconLabel(cdToggleBtn, cdActivated ? 'fa-solid fa-check' : 'fa-solid fa-hourglass-half', cdActivated ? t('activated') : t('setCountdown'));
+        cdActivateBtn.textContent = t('activate');
+        updateDeckStatus();
+      }
+
+      function applyTheme() {
+        document.body.dataset.theme = theme;
+      }
+
+      function estimateIntensity(text) {
+        const lower = text.toLowerCase();
+        let score = 1;
+        if (/3 ly|4 ly|hôn|cắn|mút|ngồi vào lòng|bị đọc|lục điện thoại|người yêu cũ|bí mật|ghét|toxic|redflag/.test(lower)) score = 3;
+        else if (/2 ly|ôm|thơm|cõng|bế|massage|story|messenger|instagram|locket|ảnh|đăng|nhổ|gội|đánh răng/.test(lower)) score = 2;
+        if (/^\[bingo\]/i.test(text.trim())) score = Math.max(1, score - 1);
+        return score;
+      }
+
+      function getPacksForCard(text) {
+        const packs = Object.entries(PACK_RULES)
+          .filter(([, rules]) => rules.some(rule => rule.test(text)))
+          .map(([pack]) => pack);
+        return packs.length ? packs : ['funny'];
+      }
+
+      function parseCustomCards(value) {
+        return value.split('\n').map(line => line.trim()).filter(Boolean);
+      }
+
+      function cardAllowed(text) {
+        const packs = getPacksForCard(text);
+        const packAllowed = packs.some(pack => enabledPacks[pack]);
+        const intensityAllowed = estimateIntensity(text) <= INTENSITY_LIMITS[intensity];
+        return packAllowed && intensityAllowed;
+      }
+
+      function makeDeckCard(vi, index) {
+        return {
+          vi,
+          en: translatedPrompts[index] || vi,
+          filterText: vi,
+        };
+      }
+
+      function makeCustomCard(text) {
+        return {
+          vi: text,
+          en: text,
+          filterText: text,
+        };
+      }
+
+      function getCardText(card) {
+        if (typeof card === 'string') return card;
+        return language === 'en' ? (card.en || card.vi) : card.vi;
+      }
+
+      function getCardFilterText(card) {
+        return typeof card === 'string' ? card : card.filterText;
+      }
+
+      function rebuildDeck(resetRemaining = true) {
+        const allCards = [
+          ...sourcePrompts.map(makeDeckCard),
+          ...customCards.map(makeCustomCard),
+        ];
+        const filtered = allCards.filter(card => cardAllowed(getCardFilterText(card)));
+        prompts = filtered.length ? filtered : allCards;
+        if (resetRemaining) remaining = [...prompts];
+        updateCounter();
+        updateDeckStatus();
+      }
+
+      function updateDeckStatus() {
+        if (!deckNote || !deckMood) return;
+        const total = sourcePrompts.length + customCards.length;
+        const shown = prompts.length || total;
+        deckNote.textContent = total ? I18N[language].deckNote(shown, total) : '';
+        customCardsNote.textContent = I18N[language].customNote(customCards.length);
+        deckMood.textContent = I18N[language].mood(THEME_NAMES[language][theme], shown);
+        updateCounter();
+      }
+
+      function syncPreferenceUI() {
+        applyTheme();
+        customCardsInput.value = customCards.join('\n');
+        toggleEl.classList.toggle('on', noRepeat);
+        toggleEl.setAttribute('aria-checked', String(noRepeat));
+        syncCopy();
+      }
+
+      languageControl.addEventListener('click', e => {
+        const btn = e.target.closest('[data-lang]');
+        if (!btn) return;
+        language = btn.dataset.lang;
+        saveSettings();
+        syncCopy();
+        renderPlayerList();
+        renderPlayerStrip();
+        renderCountdownList();
+      });
+
+      themeGrid.addEventListener('click', e => {
+        const btn = e.target.closest('[data-theme-choice]');
+        if (!btn) return;
+        theme = btn.dataset.themeChoice;
+        applyTheme();
+        saveSettings();
+        syncCopy();
+      });
+
+      intensityControl.addEventListener('click', e => {
+        const btn = e.target.closest('[data-intensity]');
+        if (!btn) return;
+        intensity = btn.dataset.intensity;
+        rebuildDeck(true);
+        saveSettings();
+        syncCopy();
+      });
+
+      packGrid.addEventListener('click', e => {
+        const btn = e.target.closest('[data-pack]');
+        if (!btn) return;
+        const pack = btn.dataset.pack;
+        enabledPacks[pack] = !enabledPacks[pack];
+        if (!Object.values(enabledPacks).some(Boolean)) enabledPacks[pack] = true;
+        rebuildDeck(true);
+        saveSettings();
+        syncCopy();
+      });
+
+      customCardsInput.addEventListener('input', e => {
+        customCards = parseCustomCards(e.target.value);
+        rebuildDeck(true);
+        saveSettings();
+      });
 
       /* ═══════════════════════════════════════════
          DRAWER
@@ -2165,7 +2753,7 @@
           <input
             class="player-name-input" type="text"
             value="${escHtml(p.name)}"
-            placeholder="Player ${i + 1}"
+            placeholder="${escHtml(language === 'vi' ? 'Người chơi' : 'Player')} ${i + 1}"
             maxlength="20" data-idx="${i}"
           />
           <button
@@ -2177,7 +2765,7 @@
 
           row.querySelector('.player-name-input').addEventListener('input', e => {
             const idx = +e.target.dataset.idx;
-            players[idx].name = e.target.value.trim() || `Player ${idx + 1}`;
+            players[idx].name = e.target.value.trim() || `${language === 'vi' ? 'Người chơi' : 'Player'} ${idx + 1}`;
             saveSettings();
             renderPlayerStrip();
           });
@@ -2227,7 +2815,7 @@
       }
 
       addPlayerBtn.addEventListener('click', () => {
-        players.push({ name: `Player ${players.length + 1}`, shots: 0 });
+        players.push({ name: `${language === 'vi' ? 'Người chơi' : 'Player'} ${players.length + 1}`, shots: 0 });
         saveSettings();
         renderPlayerList();
         renderPlayerStrip();
@@ -2317,22 +2905,30 @@
       ═══════════════════════════════════════════ */
       async function loadPrompts() {
         try {
-          const res = await fetch(`cards.json?v=${Date.now()}`);
-          if (!res.ok) throw new Error();
-          prompts = await res.json();
+          const cacheBust = Date.now();
+          const [cardsRes, translationsRes] = await Promise.all([
+            fetch(`cards.json?v=${cacheBust}`),
+            fetch(`cards.en.json?v=${cacheBust}`),
+          ]);
+          if (!cardsRes.ok) throw new Error();
+          sourcePrompts = await cardsRes.json();
+          translatedPrompts = translationsRes.ok ? await translationsRes.json() : [];
         } catch {
-          prompts = [
+          sourcePrompts = [
             'Could not load cards.json.',
-            'Serve both files via a local server — not file://',
+            'Serve both files via a local server - not file://',
+          ];
+          translatedPrompts = [
+            'Could not load cards.json.',
+            'Serve both files through a local server - not file://',
           ];
         }
-        remaining = [...prompts];
-        updateCounter();
+        rebuildDeck(true);
       }
 
       function updateCounter() {
         if (noRepeat) {
-          counterEl.textContent = `${remaining.length} of ${prompts.length} remaining`;
+          counterEl.textContent = I18N[language].remaining(remaining.length, prompts.length);
           counterEl.classList.add('visible');
         } else {
           counterEl.classList.remove('visible');
@@ -2354,6 +2950,7 @@
         toggleEl.classList.toggle('on', noRepeat);
         toggleEl.setAttribute('aria-checked', String(noRepeat));
         if (noRepeat) remaining = [...prompts];
+        saveSettings();
         updateCounter();
       });
 
@@ -2448,14 +3045,16 @@
       /* ═══════════════════════════════════════════
          OVERLAY
       ═══════════════════════════════════════════ */
-      function showResult(text) {
+      function showResult(card) {
         const p = players[currentPlayerIdx];
         const isLoser = p.shots >= maxShots;
-        const isBingo = isBingoCard(text);
+        const sourceText = getCardFilterText(card);
+        const displayText = getCardText(card);
+        const isBingo = isBingoCard(sourceText);
 
-        cardText.textContent = text;
+        cardText.textContent = displayText;
         cardText.classList.toggle('is-bingo', isBingo);
-        turnName.textContent = `${p.name}'s turn`;
+        turnName.textContent = I18N[language].turn(p.name);
         renderTurnDots();
 
         flipFront.classList.toggle('is-loser', isLoser);
@@ -2468,7 +3067,7 @@
 
         // Pre-fill countdown text with the card's text (strip BINGO prefix if any)
         resetCdForm();
-        const _cdPrefill = text.replace(/^\[bingo\]\s*/i, '');
+        const _cdPrefill = displayText.replace(/^\[bingo\]\s*/i, '');
         cdTextEl.value = _cdPrefill;
 
         if (isBingo) {
@@ -2588,7 +3187,7 @@
         cdFormEl.classList.remove('cd-open');
         cdToggleBtn.classList.remove('cd-open');
         cdToggleBtn.classList.add('cd-done');
-        cdToggleBtn.innerHTML = '<i class="fa-solid fa-check" style="font-size:9px"></i>&ensp;Đã kích hoạt';
+        setIconLabel(cdToggleBtn, 'fa-solid fa-check', t('activated'));
 
         renderCountdownList();
       });
@@ -2602,7 +3201,7 @@
         cdActivateBtn.disabled = false;
         cdFormEl.classList.remove('cd-open');
         cdToggleBtn.classList.remove('cd-open', 'cd-done');
-        cdToggleBtn.innerHTML = '<i class="fa-solid fa-hourglass-half" style="font-size:9px"></i>&ensp;Đặt thử thách theo vòng';
+        setIconLabel(cdToggleBtn, 'fa-solid fa-hourglass-half', t('setCountdown'));
       }
 
       function tickCountdowns() {
@@ -2622,7 +3221,7 @@
         toast.innerHTML =
           '<span class="toast-icon">\u23F0</span>' +
           '<div>' +
-          '<div class="toast-title">Th\u1EED th\u00E1ch k\u1EBFt th\u00FAc!</div>' +
+          '<div class="toast-title">' + escHtml(t('toastTitle')) + '</div>' +
           '<div class="toast-body">' + escHtml(cd.text) +
           '<span class="toast-by">\u2014 ' + escHtml(cd.activatorName) + '</span>' +
           '</div>' +
@@ -2648,17 +3247,26 @@
           chip.innerHTML =
             '<div class="cd-chip-body">' +
             '<span class="cd-chip-text">' + escHtml(cd.text) + '</span>' +
-            '<span class="cd-chip-meta">' + escHtml(cd.activatorName) + ' \u00B7 ' + cd.rounds + ' v\u00F2ng</span>' +
+            '<span class="cd-chip-meta">' + escHtml(cd.activatorName) + ' \u00B7 ' + cd.rounds + ' ' + escHtml(language === 'vi' ? 'vòng' : 'rounds') + '</span>' +
             '</div>' +
-            '<span class="cd-chip-turns">' + cd.turnsRemaining + '</span>';
+            '<span class="cd-chip-turns">' + cd.turnsRemaining + '</span>' +
+            '<button class="cd-remove-btn" data-cd-id="' + cd.id + '" aria-label="' + escHtml(t('removeTimer')) + '"><i class="fa-solid fa-xmark"></i></button>';
           countdownListEl.appendChild(chip);
         });
       }
+
+      countdownListEl.addEventListener('click', e => {
+        const btn = e.target.closest('.cd-remove-btn');
+        if (!btn) return;
+        activeCountdowns = activeCountdowns.filter(cd => cd.id !== Number(btn.dataset.cdId));
+        renderCountdownList();
+      });
 
       /* ═══════════════════════════════════════════
          INIT
       ═══════════════════════════════════════════ */
       loadSettings();
+      syncPreferenceUI();
       syncShotsUI();
       syncCdRoundsUI();
       buildStack();
