@@ -1,0 +1,257 @@
+/* Tiny guests at the edge of the table. This layer never catches a click. */
+#partyLayer {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  overflow: hidden;
+  pointer-events: none;
+  contain: layout style;
+}
+
+.party-pet {
+  position: absolute;
+  bottom: var(--pet-bottom, 24px);
+  left: -180px;
+  width: var(--pet-size, 132px);
+  height: 104px;
+  animation: party-cross var(--pet-duration, 8s) linear both;
+  filter: drop-shadow(0 3px 2px rgba(20, 11, 23, .2));
+  will-change: transform;
+}
+
+.party-pet-reverse {
+  left: auto;
+  right: -180px;
+  animation-name: party-cross-back;
+}
+
+.party-pet-sprite {
+  position: absolute;
+  inset: 0;
+  display: block;
+  animation: party-trot .34s ease-in-out infinite alternate;
+}
+
+.party-pet-sprite svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.party-pet-reverse .party-pet-sprite svg {
+  transform: scaleX(-1);
+}
+
+.party-pet-shadow {
+  position: absolute;
+  width: 72%;
+  height: 8px;
+  bottom: 2px;
+  left: 13%;
+  background: rgba(8, 5, 16, .22);
+  border-radius: 50%;
+  animation: party-shadow .34s ease-in-out infinite alternate;
+}
+
+.party-leg {
+  transform-box: fill-box;
+  transform-origin: 50% 0%;
+  animation: party-step .34s ease-in-out infinite alternate;
+}
+
+.party-leg-back {
+  animation-delay: -.34s;
+}
+
+.party-tail {
+  transform-box: fill-box;
+  transform-origin: 100% 85%;
+  animation: party-tail-wag .24s ease-in-out infinite alternate;
+}
+
+.party-cat-tail {
+  animation-duration: .58s;
+}
+
+.party-pet-head {
+  transform-box: fill-box;
+  transform-origin: 35% 95%;
+  animation: party-head-bob .34s ease-in-out infinite alternate;
+}
+
+.party-garden {
+  position: absolute;
+  inset: 0;
+}
+
+.party-flower {
+  position: absolute;
+  width: var(--flower-size, 65px);
+  bottom: -17px;
+  transform: translateX(-50%) rotate(var(--flower-turn, 0deg));
+  transform-origin: 50% 100%;
+  animation: party-flower-stay 5.5s ease both;
+  animation-delay: var(--flower-delay, 0s);
+  filter: drop-shadow(0 2px 2px rgba(20, 11, 23, .16));
+}
+
+.party-flower svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.party-flower-stem {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: party-stem-grow .75s cubic-bezier(.22, 1, .36, 1) both;
+  animation-delay: var(--flower-delay, 0s);
+}
+
+.party-flower-petals {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: party-bloom .95s cubic-bezier(.18, .75, .3, 1.35) both;
+  animation-delay: calc(var(--flower-delay, 0s) + .18s);
+}
+
+.party-flower-sparkles {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: party-pollen 1.1s ease both;
+  animation-delay: calc(var(--flower-delay, 0s) + .7s);
+}
+
+#partyToast {
+  position: fixed;
+  z-index: 41;
+  bottom: 23px;
+  left: 50%;
+  padding: 9px 16px;
+  max-width: calc(100% - 40px);
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  background: color-mix(in srgb, var(--night) 92%, transparent);
+  color: var(--text);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .025em;
+  white-space: nowrap;
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, 7px);
+  transition: opacity .25s ease, transform .25s ease;
+  backdrop-filter: blur(8px);
+}
+
+#partyToast.is-visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+@keyframes party-cross {
+  from { transform: translateX(0); }
+  to { transform: translateX(calc(100vw + 360px)); }
+}
+
+@keyframes party-cross-back {
+  from { transform: translateX(0); }
+  to { transform: translateX(calc(-100vw - 360px)); }
+}
+
+@keyframes party-trot {
+  from { transform: translateY(0) rotate(-1.5deg); }
+  to { transform: translateY(-6px) rotate(1.5deg); }
+}
+
+@keyframes party-step {
+  from { transform: rotate(-21deg); }
+  to { transform: rotate(21deg); }
+}
+
+@keyframes party-tail-wag {
+  from { transform: rotate(-9deg); }
+  to { transform: rotate(11deg); }
+}
+
+@keyframes party-head-bob {
+  from { transform: rotate(-3deg); }
+  to { transform: rotate(2deg); }
+}
+
+@keyframes party-shadow {
+  from { opacity: .8; transform: scaleX(1); }
+  to { opacity: .45; transform: scaleX(.86); }
+}
+
+@keyframes party-flower-stay {
+  0% { opacity: 0; }
+  8%, 78% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes party-stem-grow {
+  from { transform: scaleY(.05); }
+  to { transform: scaleY(1); }
+}
+
+@keyframes party-bloom {
+  from { transform: scale(.04) rotate(-24deg); }
+  to { transform: scale(1) rotate(0); }
+}
+
+@keyframes party-pollen {
+  0% { opacity: 0; transform: scale(.6); }
+  40% { opacity: 1; }
+  100% { opacity: 0; transform: scale(1.18); }
+}
+
+@media (max-width: 600px) {
+  .party-pet {
+    width: calc(var(--pet-size, 132px) * .78);
+    height: 81px;
+  }
+
+  .party-flower {
+    width: calc(var(--flower-size, 65px) * .8);
+    bottom: -13px;
+  }
+
+  #partyToast {
+    bottom: 20px;
+    padding: 8px 12px;
+    font-size: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .party-pet {
+    left: var(--pet-rest-x, 24px);
+    right: auto;
+    transform: none;
+    animation: none;
+  }
+
+  .party-pet-sprite,
+  .party-pet-shadow,
+  .party-leg,
+  .party-tail,
+  .party-pet-head,
+  .party-flower,
+  .party-flower-stem,
+  .party-flower-petals,
+  .party-flower-sparkles {
+    animation: none;
+  }
+
+  .party-flower-sparkles {
+    display: none;
+  }
+
+  #partyToast {
+    transition: none;
+  }
+}
